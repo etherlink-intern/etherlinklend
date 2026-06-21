@@ -16,6 +16,8 @@ Each feed MUST be mapped per asset pair. The mapping MUST include feed ID or ada
 
 Dedicated RPC infrastructure is useful for querying feeds, monitoring them, and running RedStone relayers. It does not itself create a trusted RedStone feed. See [RedStone RPC Feed Operations Plan](redstone-rpc-feed-plan.md).
 
+The repository also includes a config-driven price-source monitor for XTZ/USD, USDC/USD, and WXTZ/USDC. See [Etherlink Price Source Monitor](../../docs/oracle-price-monitor.md) and [`etherlink-price-sources.json`](etherlink-price-sources.json).
+
 ## Oracle Requirements
 
 Every production market oracle MUST have:
@@ -35,6 +37,7 @@ Every production market oracle MUST have:
 - No unverified feed IDs.
 - No feed with unclear decimals.
 - No silent stale-price fallback.
+- No hardcoded USDC equals 1 USD production fallback.
 - No assumption that owning an RPC endpoint is enough to create or approve a production oracle feed.
 - No market deployment before stale-price behavior is tested.
 

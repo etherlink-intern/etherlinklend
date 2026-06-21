@@ -33,7 +33,7 @@ Those addresses are useful for reading XTZ/USD. They do not automatically provid
 For a WXTZ/USDC Morpho market, the oracle must return the value of one collateral asset quoted in the loan asset. A production design still needs:
 
 - A verified WXTZ-to-XTZ assumption and WXTZ contract risk review.
-- A verified USDC/USD feed or an explicitly approved USDC equals 1 USD policy with depeg monitoring and borrow-growth controls.
+- A verified USDC/USD feed with depeg monitoring and borrow-growth controls. This repository does not use a hardcoded USDC equals 1 USD production fallback.
 - Decimals normalization from feed units into Morpho's expected oracle scale.
 - Stale-price, missing-price, malformed-price, and deviation tests.
 
@@ -83,7 +83,7 @@ Shadownet tests do not prove production feed quality, production liquidity, sign
 
 Use our RPC as production infrastructure, not as proof that the oracle feed is safe.
 
-The initial market plan should treat RedStone XTZ/USD as a candidate input, then combine it with a verified USDC/USD source or an explicitly approved USDC policy. Any custom RedStone feed or self-operated adapter path remains blocked until the production gate above is complete.
+The initial market plan should treat RedStone XTZ/USD as a candidate input, then combine it with a verified USDC/USD source and essential DEX/CEX deviation monitoring. Any custom RedStone feed or self-operated adapter path remains blocked until the production gate above is complete.
 
 ## References
 

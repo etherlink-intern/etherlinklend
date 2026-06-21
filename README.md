@@ -100,6 +100,16 @@ make slither
 pnpm lint
 ```
 
+### Oracle Price Monitor
+
+```bash
+pnpm oracle:prices
+pnpm oracle:prices:table
+pnpm oracle:serve
+```
+
+The JSON-RPC monitor defaults to a 15-minute source refresh cadence so repeated product reads do not repeatedly hit upstream API rate limits.
+
 ### Fork Test Shadownet
 
 ```bash
@@ -151,6 +161,7 @@ A prior Etherlink lending deployment reportedly suffered a rounding-related inci
 | Market templates | [config/markets/README.md](config/markets/README.md) |
 | Oracle notes | [config/oracles/README.md](config/oracles/README.md) |
 | RedStone RPC/feed plan | [config/oracles/redstone-rpc-feed-plan.md](config/oracles/redstone-rpc-feed-plan.md) |
+| Price source monitor | [docs/oracle-price-monitor.md](docs/oracle-price-monitor.md) |
 | Risk templates | [config/risk/README.md](config/risk/README.md) |
 | Upstream pins | [docs/upstream.md](docs/upstream.md) |
 | Audit tracking | [audits/README.md](audits/README.md) |
