@@ -1,0 +1,41 @@
+{
+  "status": "draft",
+  "chain": {
+    "name": "Etherlink Shadownet Testnet",
+    "chainId": 127823
+  },
+  "market": {
+    "name": "MOCK_COLLATERAL/MOCK_LOAN Shadownet Test Market",
+    "purpose": "testnet-only-deployment-validation",
+    "loanToken": "0xTODO_AFTER_DEPLOY",
+    "loanTokenSymbol": "MOCK_LOAN",
+    "loanTokenDecimals": 18,
+    "collateralToken": "0xTODO_AFTER_DEPLOY",
+    "collateralTokenSymbol": "MOCK_COLLATERAL",
+    "collateralTokenDecimals": 18,
+    "oracle": "0xTODO_AFTER_DEPLOY",
+    "oracleType": "TEST_ONLY_FIXED_PRICE_ORACLE",
+    "oracleDecimals": 18,
+    "irm": "0xTODO_AFTER_DEPLOY",
+    "lltv": "TODO_CONSERVATIVE_TEST_VALUE"
+  },
+  "risk": {
+    "productionApproved": false,
+    "testnetOnly": true,
+    "maxSupplyCap": "LOW_TEST_CAP_ONLY",
+    "maxBorrowCap": "LOW_TEST_CAP_ONLY",
+    "liquidationLiquidityNotes": "Mock-only. Not representative of production liquidity.",
+    "riskOwner": "TODO",
+    "reviewedBy": []
+  },
+  "checks": {
+    "chainIdGuarded": true,
+    "tokenDecimalsVerified": false,
+    "oracleFeedVerified": false,
+    "oracleStalenessTested": false,
+    "liquidationTested": false,
+    "forkTested": false,
+    "externalReviewComplete": false
+  },
+  "notes": "Shadownet deployment validation only. Do not use this file for mainnet."
+}

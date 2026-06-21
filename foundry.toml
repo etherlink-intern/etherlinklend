@@ -9,13 +9,21 @@ optimizer = true
 optimizer_runs = 999999
 bytecode_hash = "none"
 evm_version = "paris"
-fs_permissions = [{ access = "read", path = "./config" }, { access = "read-write", path = "./deployments" }]
+fs_permissions = [
+  { access = "read", path = "./config" },
+  { access = "read", path = "./docs" },
+  { access = "read", path = "./test" },
+  { access = "read-write", path = "./deployments" }
+]
 ffi = false
 
 [rpc_endpoints]
 anvil = "http://127.0.0.1:8545"
 etherlink_mainnet = "${ETHERLINK_MAINNET_RPC_URL}"
 etherlink_shadownet = "${ETHERLINK_SHADOWNET_RPC_URL}"
+
+[etherscan]
+etherlink_shadownet = { key = "${ETHERSCAN_API_KEY}", url = "${ETHERLINK_SHADOWNET_EXPLORER_API_URL}", chain = 127823 }
 
 [profile.default.fmt]
 wrap_comments = true

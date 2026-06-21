@@ -1,22 +1,69 @@
-# Etherlink Morpho Blue-Compatible Lending Scaffold
+# Etherlink Morpho Deployment Scaffold
 
-This repository is a production-quality foundation for a licensed, auditable Etherlink-oriented Morpho Blue-compatible fork/clone. It intentionally avoids protocol logic changes and deployments.
+This repository is an unaudited planning and scaffold repository for an Etherlink Morpho deployment. It is not production-ready, no production deployment is approved, and no contract in this repository should be used with live funds until every launch gate is complete.
 
-> **Warning:** this is an unaudited scaffold, not production-ready, and not approved for handling funds.
+The goal is to prepare an auditable Morpho Blue-based lending deployment for Etherlink. This task populates documentation, launch planning, and risk-process materials only. It does not deploy contracts and does not implement protocol logic.
 
-## Upstream Dependency Policy
+## Project Status
 
-Morpho upstream repositories are pinned by commit SHA as Git submodules under `lib/`. Do not float branches. Preserve upstream licenses, notices, copyright headers, and attribution. See `docs/upstream.md`.
+- Status: planning and scaffold only.
+- Production approval: not granted.
+- Deployment status: no production deployment approved or performed.
+- Current objective: document the selected architecture, safety requirements, launch gates, market review process, and Etherlink-specific operational assumptions.
 
-## License and Attribution
+Any factual chain, oracle, or upstream-repository detail in this repository MUST be verified against official sources before deployment.
 
-This scaffold follows GPL-2.0-or-later/BUSL-1.1 compatibility where Morpho Blue code is involved. Upstream dependencies retain their own licenses. See `LICENSE` and `NOTICE`; legal review is required before production release.
+## Architecture Decision
 
-## Package Manager
+The selected initial path is Morpho Blue isolated lending markets on Etherlink. A market is an isolated loan-token, collateral-token, oracle, IRM, and LLTV tuple.
 
-pnpm is used for lightweight JavaScript tooling such as Solhint. Foundry remains the primary Solidity toolchain.
+Isolated markets were selected because they provide:
 
-## Installation
+- Smaller blast radius per market.
+- Clearer risk ownership per loan asset and collateral asset pair.
+- Easier launch sequencing from one market to a small set of markets.
+- Cleaner risk review than cloning old Aave or Compound forks.
+- A better fit for market-by-market oracle and liquidation validation.
+
+Aave V3 Origin, Compound III / Comet, and Euler V2 / EVK remain useful reference architectures. They are not the initial implementation target. Old Aave V2, stale Aave V3, Compound V2, abandoned forks, and the Superlend codebase are not the chosen base.
+
+## Etherlink Target
+
+Expected network configuration:
+
+| Network | Expected chain ID | Native token | RPC env var | Status |
+|---|---:|---|---|---|
+| Etherlink Mainnet | `42793` | `XTZ` | `ETHERLINK_MAINNET_RPC_URL` | Not approved for production until launch checklist completion |
+| Etherlink Shadownet | `127823` | `XTZ` | `ETHERLINK_SHADOWNET_RPC_URL` | Testnet only |
+
+These values MUST be verified against official Etherlink documentation before deployment.
+
+Public RPCs MAY be used for development and read-only experiments. Production bots, monitoring, liquidation infrastructure, and post-launch operations MUST use dedicated, reliable RPC infrastructure with alerting and failover planning.
+
+## Security-First Launch Posture
+
+Mainnet deployment MUST NOT happen before all of the following are complete:
+
+- Upstream commit pinning.
+- License review.
+- Fork-diff review.
+- Unit tests.
+- Fork tests.
+- Fuzz and invariant tests.
+- Static analysis.
+- Oracle review.
+- Risk-parameter approval.
+- External audit.
+- Etherlink Shadownet deployment.
+- Monitoring readiness.
+- Liquidation bot readiness.
+- Emergency-response rehearsal.
+
+Forking a mature lending protocol does not make the deployment safe. Upstream protocol risk, fork/deployment risk, market-configuration risk, oracle risk, token behavior risk, liquidation risk, and Etherlink-specific risk MUST be evaluated separately.
+
+## Commands
+
+### Install
 
 ```bash
 git submodule update --init --recursive
@@ -24,64 +71,86 @@ pnpm install --frozen-lockfile
 make install
 ```
 
-## Build
+### Build
 
 ```bash
 forge build
 make build
 ```
 
-## Test
+### Test
 
 ```bash
 forge test
-make test
 forge snapshot
+make test
 ```
 
-## Format and Static Analysis
+### Format Check
 
 ```bash
 forge fmt --check
+make fmt-check
+```
+
+### Static Analysis
+
+```bash
 make slither
 pnpm lint
 ```
 
-## Local Anvil Tests
-
-Run Anvil in a separate terminal, then run normal tests or scripts against `http://127.0.0.1:8545`. Unit tests do not require secrets.
-
-## Etherlink Fork Tests
+### Fork Test Shadownet
 
 ```bash
 make fork-shadownet
-make fork-mainnet
 ```
 
-Set `ETHERLINK_SHADOWNET_RPC_URL` or `ETHERLINK_MAINNET_RPC_URL` first. Fork tests skip their fork body when RPC env vars are absent.
+Set `ETHERLINK_SHADOWNET_RPC_URL` first.
 
-## Deployment Records
-
-No deployment is performed by this scaffold. Future artifacts belong under `deployments/<chain>/` with transaction hashes, bytecode metadata, constructor args, compiler settings, and verification links. Never store secrets.
-
-## Security
-
-See `SECURITY.md` for responsible disclosure and scope. Reports should avoid exploiting live funds.
-
-## Launch Gates
-
-Before launch: pinned upstream commits, legal review, fork diff, clean build, passing tests/fuzz/invariants/fork tests, reviewed Slither output, verified oracle/token addresses/decimals, approved risk parameters, tested liquidators, external audit, no high/critical findings, dry run, testnet deploy, verification, and monitoring readiness.
-
-## Common Commands
+### Fork Test Mainnet
 
 ```bash
-git submodule update --init --recursive
-forge build
-forge test
-forge fmt --check
-forge snapshot
-make test
-make slither
-make fork-shadownet
 make fork-mainnet
 ```
+
+Set `ETHERLINK_MAINNET_RPC_URL` first. Mainnet fork tests MUST NOT require private keys.
+
+### Dry-Run Deployment
+
+```bash
+make dry-run-shadownet
+```
+
+Dry runs SHOULD be archived with compiler settings, constructor arguments, expected addresses if deterministic, and source commit.
+
+### Deployment Artifact Recording
+
+Deployment artifacts MUST be recorded under `deployments/<chain>/` after every broadcast. A deployment artifact includes addresses, constructor arguments, transaction hashes, compiler settings, verification status, config snapshots, deployer identity, source commit, and reviewer notes.
+
+## Warning
+
+Forking a mature lending protocol does not make an Etherlink Morpho deployment safe.
+
+Common failure points include market configuration, oracle selection, token behavior, decimals, liquidity, liquidation infrastructure, deployment scripts, and monitoring. Etherlink's low fees make repeated dust transactions, rounding loops, share/accounting edge cases, and oracle edge cases especially important to test with high iteration counts.
+
+A prior Etherlink lending deployment reportedly suffered a rounding-related incident affecting BTC markets. This repository treats that as a warning, not as a substitute for a postmortem. The actual incident details MUST be collected and reviewed before launch.
+
+## Document Map
+
+| Area | Document |
+|---|---|
+| Architecture decision | [docs/architecture.md](docs/architecture.md) |
+| Fork policy | [docs/fork-policy.md](docs/fork-policy.md) |
+| Threat model | [docs/threat-model.md](docs/threat-model.md) |
+| Etherlink notes | [docs/etherlink-notes.md](docs/etherlink-notes.md) |
+| Deployment runbook | [docs/deployment-runbook.md](docs/deployment-runbook.md) |
+| Verification runbook | [docs/verification-runbook.md](docs/verification-runbook.md) |
+| Emergency response | [docs/emergency-response.md](docs/emergency-response.md) |
+| Launch checklist | [docs/launch-checklist.md](docs/launch-checklist.md) |
+| Market templates | [config/markets/README.md](config/markets/README.md) |
+| Oracle notes | [config/oracles/README.md](config/oracles/README.md) |
+| RedStone RPC/feed plan | [config/oracles/redstone-rpc-feed-plan.md](config/oracles/redstone-rpc-feed-plan.md) |
+| Risk templates | [config/risk/README.md](config/risk/README.md) |
+| Upstream pins | [docs/upstream.md](docs/upstream.md) |
+| Audit tracking | [audits/README.md](audits/README.md) |

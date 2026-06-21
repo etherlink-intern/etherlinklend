@@ -1,1 +1,47 @@
-{"loanToken":"TODO_VERIFIED_ADDRESS","collateralToken":"TODO_VERIFIED_ADDRESS","oracle":"TODO_VERIFIED_ADDRESS","irm":"TODO_VERIFIED_ADDRESS","lltv":"TODO_BPS_OR_WAD","loanTokenDecimals":"TODO_VERIFY","collateralTokenDecimals":"TODO_VERIFY","oracleDecimals":"TODO_VERIFY","maxSupplyCap":"TODO_RISK_REVIEW","maxBorrowCap":"TODO_RISK_REVIEW","liquidationNotes":"TODO","riskOwner":"TODO_NON_PRODUCTION_PLACEHOLDER","createdBy":"TODO","reviewedBy":"TODO","status":"draft"}
+{
+  "status": "draft",
+  "chain": {
+    "name": "Etherlink Shadownet",
+    "chainId": 127823
+  },
+  "market": {
+    "name": "EXAMPLE_COLLATERAL/EXAMPLE_LOAN",
+    "loanToken": "0xTODO",
+    "loanTokenSymbol": "TODO_LOAN",
+    "loanTokenDecimals": null,
+    "collateralToken": "0xTODO",
+    "collateralTokenSymbol": "TODO_COLLATERAL",
+    "collateralTokenDecimals": null,
+    "oracle": "0xTODO",
+    "oracleType": "TODO_PYTH_OR_REDSTONE_OR_OTHER",
+    "oracleDecimals": null,
+    "irm": "0xTODO",
+    "lltv": "TODO_BPS_OR_WAD"
+  },
+  "risk": {
+    "maxSupplyCap": "TODO",
+    "maxBorrowCap": "TODO",
+    "initialSupplyCap": "TODO",
+    "initialBorrowCap": "TODO",
+    "liquidationLiquidityNotes": "TODO",
+    "knownAssetRisks": [],
+    "riskOwner": "TODO",
+    "reviewedBy": []
+  },
+  "checks": {
+    "tokenDecimalsVerified": false,
+    "oracleFeedVerified": false,
+    "oracleStalenessTested": false,
+    "liquidationTested": false,
+    "forkTested": false,
+    "externalReviewComplete": false
+  },
+  "todos": [
+    {
+      "owner": "TODO",
+      "action": "Replace every placeholder with verified Shadownet-only values before testing.",
+      "date": "TODO before Shadownet market creation"
+    }
+  ],
+  "notes": "Template only. Do not deploy with placeholder values."
+}
