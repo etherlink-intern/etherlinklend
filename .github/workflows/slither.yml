@@ -1,5 +1,11 @@
 name: Slither
 on: [push, pull_request]
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
 jobs:
   slither:
     runs-on: ubuntu-latest
@@ -8,11 +14,21 @@ jobs:
         with: { submodules: recursive }
       - uses: foundry-rs/foundry-toolchain@v1
       - uses: crytic/slither-action@v0.4.1
+        id: slither
         continue-on-error: true
         with:
           target: .
           slither-config: .slither.json
           sarif: slither-report.sarif
+      # Always keep the report as a downloadable artifact (works on any repo).
+      - uses: actions/upload-artifact@v4
+        if: always() && hashFiles('slither-report.sarif') != ''
+        with:
+          name: slither-sarif
+          path: slither-report.sarif
+      # Code scanning upload needs GitHub Advanced Security on PRIVATE repos.
+      # Keep it non-fatal so the job stays green when GHAS is unavailable.
       - uses: github/codeql-action/upload-sarif@v3
         if: always() && hashFiles('slither-report.sarif') != ''
+        continue-on-error: true
         with: { sarif_file: slither-report.sarif }
