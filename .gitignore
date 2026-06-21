@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+broadcast/
+cache/
+out/
+node_modules/
+coverage/
+lcov.info
+slither-report.*
+*.sarif
+*.tmp
+*.bak
+local-deployment-keys/

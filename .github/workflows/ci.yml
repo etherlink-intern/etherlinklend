@@ -1,0 +1,20 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  forge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { submodules: recursive }
+      - uses: pnpm/action-setup@v4
+        with: { version: 10.28.1 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - uses: foundry-rs/foundry-toolchain@v1
+      - run: pnpm install --frozen-lockfile
+      - run: git submodule update --init --recursive
+      - run: forge fmt --check
+      - run: forge build
+      - run: forge test
+      - run: forge snapshot --check || forge snapshot
+      - run: pnpm lint

@@ -1,0 +1,18 @@
+name: Slither
+on: [push, pull_request]
+jobs:
+  slither:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { submodules: recursive }
+      - uses: foundry-rs/foundry-toolchain@v1
+      - uses: crytic/slither-action@v0.4.1
+        continue-on-error: true
+        with:
+          target: .
+          slither-config: .slither.json
+          sarif: slither-report.sarif
+      - uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('slither-report.sarif') != ''
+        with: { sarif_file: slither-report.sarif }

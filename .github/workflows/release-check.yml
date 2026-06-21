@@ -1,0 +1,18 @@
+name: Release Check
+on: [pull_request]
+jobs:
+  release-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0, submodules: recursive }
+      - run: test -f LICENSE && test -f NOTICE
+      - run: test -f docs/upstream.md && grep -Eq '[0-9a-f]{40}' docs/upstream.md
+      - run: '! grep -RInE "(PRIVATE_KEY=0[x]|BEGIN (RSA|OPENSSH) PRIVATE KE[Y]|mnemoni[c])" --exclude-dir=.git --exclude-dir=lib .'
+      - run: '! grep -RIn "TODO_BLOCKING" script docs config || true'
+      - run: |
+          changed=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- deployments || true)
+          if [ -n "$changed" ] && ! git log -1 --pretty=%B | grep -qi "deployment-artifact-intended"; then
+            echo "Deployment artifacts changed without deployment-artifact-intended marker" >&2
+            exit 1
+          fi

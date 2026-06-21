@@ -1,0 +1,15 @@
+{
+  "name": "etherlink-morpho-blue-scaffold",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.28.1",
+  "scripts": {
+    "lint": "solhint \"{src,script,test}/**/*.sol\"",
+    "format:check": "forge fmt --check",
+    "slither": "slither . --config-file .slither.json"
+  },
+  "devDependencies": {
+    "solhint": "^5.2.0",
+    "@openzeppelin/contracts": "^5.4.0"
+  }
+}

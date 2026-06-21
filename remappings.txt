@@ -1,0 +1,6 @@
+forge-std/=lib/forge-std/src/
+morpho-blue/=lib/morpho-blue/
+morpho-blue-irm/=lib/morpho-blue-irm/
+morpho-blue-oracles/=lib/morpho-blue-oracles/
+solmate/=lib/morpho-blue-irm/lib/solmate/src/
+openzeppelin-contracts/=lib/morpho-blue-oracles/lib/openzeppelin-contracts/

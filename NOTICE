@@ -1,0 +1,5 @@
+Etherlink Morpho Blue-compatible scaffold.
+
+This repository is prepared as a licensed fork foundation and attributes Morpho Association / Morpho Labs upstream work in morpho-org/morpho-blue, morpho-org/morpho-blue-irm, and morpho-org/morpho-blue-oracles. Upstream source is included as pinned Git submodules and retains original notices, licenses, and copyright headers.
+
+No production deployment is authorized by this scaffold. Legal review is required before production release.

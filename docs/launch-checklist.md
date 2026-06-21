@@ -1,0 +1,21 @@
+# Launch Checklist Hard Gates
+
+- [ ] Upstream commit pinned.
+- [ ] License reviewed.
+- [ ] Fork diff generated.
+- [ ] Build clean.
+- [ ] Unit tests passing.
+- [ ] Fork tests passing.
+- [ ] Invariant/fuzz tests passing.
+- [ ] Static analysis reviewed.
+- [ ] Oracle addresses verified.
+- [ ] Token decimals verified.
+- [ ] Risk parameters approved.
+- [ ] Liquidation bot tested.
+- [ ] Emergency response process documented.
+- [ ] External audit completed.
+- [ ] No unresolved high/critical findings.
+- [ ] Deployment dry run completed.
+- [ ] Testnet deployment completed.
+- [ ] Contract verification completed.
+- [ ] Monitoring/indexing ready.
