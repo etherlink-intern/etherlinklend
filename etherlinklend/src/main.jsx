@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { NocDashboard } from "./NocDashboard.jsx";
 import "./styles.css";
 
 const e = React.createElement;
@@ -63,7 +64,7 @@ const e = React.createElement;
               e("h1", null, "Borrow USDC against WXTZ with risk controls in view."),
               e("p", { className: "hero-lede" }, "EtherLinkLend brings isolated-market lending to Etherlink with a retail-first path to WXTZ-backed USDC borrowing."),
               e("div", { className: "hero-actions" },
-                e("a", { className: "btn btn-primary", href: "#coming-soon" }, "Coming soon", e("span", { "aria-hidden": "true" }, "->")),
+                e("a", { className: "btn btn-primary", href: "#noc" }, "Open NOC", e("span", { "aria-hidden": "true" }, "->")),
                 e("a", { className: "btn btn-secondary", href: "#preview" }, "Preview app")
               ),
               e("div", { className: "proof-row", "aria-label": "Market highlights" },
@@ -77,6 +78,7 @@ const e = React.createElement;
             )
           )
         ),
+        e(NocDashboard, { revealClass: revealClass("noc") }),
         e("section", { className: "section", id: "preview", "data-reveal": "preview" },
           e("div", { className: `section-inner teaser-layout ${revealClass("preview")}` },
             e("div", null,
@@ -182,6 +184,7 @@ const e = React.createElement;
             e("span", null, "EtherLinkLend")
           ),
           e("nav", { className: "nav-links", "aria-label": "Primary navigation" },
+            e("a", { href: "#noc" }, "NOC"),
             e("a", { href: "#preview" }, "Preview"),
             e("a", { href: "#safety" }, "Risk"),
             e("a", { href: "#flow" }, "Flow")
