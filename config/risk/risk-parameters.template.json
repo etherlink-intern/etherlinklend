@@ -1,1 +1,52 @@
-{"asset":"TODO","chainId":"TODO","lltv":"TODO","supplyCap":"TODO","borrowCap":"TODO","oracleStalenessSeconds":"TODO","liquidationLiquidityNotes":"TODO","approvalStatus":"draft"}
+{
+  "marketName": "TODO",
+  "status": "draft",
+  "loanAsset": {
+    "symbol": "TODO",
+    "address": "0xTODO",
+    "decimals": null,
+    "isBridged": null,
+    "upgradeable": null,
+    "pausable": null,
+    "blacklistable": null,
+    "rebasing": null,
+    "feeOnTransfer": null
+  },
+  "collateralAsset": {
+    "symbol": "TODO",
+    "address": "0xTODO",
+    "decimals": null,
+    "isBridged": null,
+    "upgradeable": null,
+    "pausable": null,
+    "blacklistable": null,
+    "rebasing": null,
+    "feeOnTransfer": null
+  },
+  "oracle": {
+    "provider": "TODO",
+    "feedIdOrAddress": "TODO",
+    "decimals": null,
+    "stalenessThresholdSeconds": null,
+    "failureMode": "TODO"
+  },
+  "parameters": {
+    "lltv": "TODO",
+    "supplyCap": "TODO",
+    "borrowCap": "TODO",
+    "irm": "TODO"
+  },
+  "liquidation": {
+    "liquiditySource": "TODO",
+    "liquidatorReady": false,
+    "testedOnFork": false,
+    "maxExpectedSlippage": "TODO"
+  },
+  "approvals": {
+    "riskOwner": "TODO",
+    "securityReviewer": "TODO",
+    "oracleReviewer": "TODO",
+    "approvedAt": null
+  },
+  "blockingIssues": []
+}

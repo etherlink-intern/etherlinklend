@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "name": "Etherlink WXTZ/USDC price source monitor",
+  "network": {
+    "name": "Etherlink Mainnet",
+    "chainId": 42793,
+    "rpcEnv": "ETHERLINK_MAINNET_RPC_URL",
+    "defaultRpc": "https://node.mainnet.etherlink.com",
+    "explorer": "https://explorer.etherlink.com"
+  },
+  "refreshIntervalSeconds": 900,
+  "referencePolicy": {
+    "method": "median",
+    "includeSourceClasses": ["oracle", "cex", "indexer"],
+    "excludeSourceClasses": ["dex-executable"],
+    "warnDeviationBps": 100,
+    "criticalDeviationBps": 250,
+    "notes": [
+      "DEX routes are required monitoring inputs and circuit-breaker signals, but are not used alone as lending oracle references.",
+      "No hardcoded USDC equals 1 USD source is configured. USDC/USD must come from live price sources."
+    ]
+  },
+  "pairs": [
+    {
+      "id": "XTZ/USD",
+      "base": "XTZ",
+      "quote": "USD",
+      "reference": "median of enabled oracle, cex, and indexer sources"
+    },
+    {
+      "id": "USDC/USD",
+      "base": "USDC",
+      "quote": "USD",
+      "reference": "median of enabled oracle, cex, and indexer sources"
+    },
+    {
+      "id": "WXTZ/USDC",
+      "base": "WXTZ",
+      "quote": "USDC",
+      "reference": "derived from XTZ/USD divided by USDC/USD",
+      "monitoringOnly": true
+    }
+  ],
+  "tokens": {
+    "WXTZ": {
+      "address": "0xc9B53AB2679f573e480d01e0f49e2B5CFB7a3EAb",
+      "decimals": 18,
+      "assumption": "WXTZ unwraps 1:1 to native XTZ; token contract and bridge assumptions still require review."
+    },
+    "USDC": {
+      "address": "0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9",
+      "decimals": 6,
+      "assumption": "USDC price is sourced live; no constant 1 USD price is used."
+    }
+  },
+  "sources": [
+    {
+      "id": "redstone-xtz-usd-etherlink",
+      "enabled": true,
+      "required": true,
+      "label": "RedStone XTZ/USD Etherlink push feed",
+      "pair": "XTZ/USD",
+      "sourceClass": "oracle",
+      "role": "onchain-oracle-input",
+      "kind": "evm-chainlink-latest-round",
+      "rpcEnv": "ETHERLINK_MAINNET_RPC_URL",
+      "defaultRpc": "https://node.mainnet.etherlink.com",
+      "address": "0xe92c00BC72dD12e26E61212c04E8D93aa09624F2",
+      "staleAfterSeconds": 90,
+      "links": [
+        "https://docs.etherlink.com/tools/price-feeds/",
+        "https://docs.redstone.finance/docs/dapps/redstone-push/"
+      ]
+    },
+    {
+      "id": "pyth-xtz-usd-hermes",
+      "enabled": true,
+      "required": true,
+      "label": "Pyth XTZ/USD Hermes price",
+      "pair": "XTZ/USD",
+      "sourceClass": "oracle",
+      "role": "oracle-cross-check",
+      "kind": "pyth-hermes-price",
+      "endpoint": "https://hermes.pyth.network/v2/updates/price/latest",
+      "feedId": "0x0affd4b8ad136a21d79bc82450a325ee12ff55a235abc242666e423b8bcffd03",
+      "staleAfterSeconds": 120,
+      "links": ["https://pyth.network/developers/price-feed-ids"]
+    },
+    {
+      "id": "pyth-usdc-usd-hermes",
+      "enabled": true,
+      "required": true,
+      "label": "Pyth USDC/USD Hermes price",
+      "pair": "USDC/USD",
+      "sourceClass": "oracle",
+      "role": "oracle-input",
+      "kind": "pyth-hermes-price",
+      "endpoint": "https://hermes.pyth.network/v2/updates/price/latest",
+      "feedId": "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
+      "staleAfterSeconds": 120,
+      "links": ["https://pyth.network/developers/price-feed-ids"]
+    },
+    {
+      "id": "binance-xtz-usdt",
+      "enabled": true,
+      "required": false,
+      "label": "Binance XTZ/USDT ticker",
+      "pair": "XTZ/USD",
+      "sourceClass": "cex",
+      "role": "cex-monitor",
+      "kind": "binance-ticker",
+      "endpoint": "https://api.binance.com/api/v3/ticker/24hr",
+      "symbol": "XTZUSDT",
+      "quoteProxy": "USDT"
+    },
+    {
+      "id": "binance-usdc-usdt",
+      "enabled": true,
+      "required": false,
+      "label": "Binance USDC/USDT ticker",
+      "pair": "USDC/USD",
+      "sourceClass": "cex",
+      "role": "cex-monitor",
+      "kind": "binance-ticker",
+      "endpoint": "https://api.binance.com/api/v3/ticker/24hr",
+      "symbol": "USDCUSDT",
+      "quoteProxy": "USDT"
+    },
+    {
+      "id": "coingecko-wxtz-usd",
+      "enabled": true,
+      "required": false,
+      "label": "CoinGecko WXTZ token price",
+      "pair": "XTZ/USD",
+      "sourceClass": "indexer",
+      "role": "offchain-indexer-monitor",
+      "kind": "coingecko-token-price",
+      "platform": "etherlink",
+      "contract": "0xc9B53AB2679f573e480d01e0f49e2B5CFB7a3EAb",
+      "endpoint": "https://api.coingecko.com/api/v3/simple/token_price/etherlink",
+      "staleAfterSeconds": 1800
+    },
+    {
+      "id": "coingecko-usdc-usd",
+      "enabled": true,
+      "required": false,
+      "label": "CoinGecko USDC token price",
+      "pair": "USDC/USD",
+      "sourceClass": "indexer",
+      "role": "offchain-indexer-monitor",
+      "kind": "coingecko-token-price",
+      "platform": "etherlink",
+      "contract": "0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9",
+      "endpoint": "https://api.coingecko.com/api/v3/simple/token_price/etherlink",
+      "staleAfterSeconds": 1800
+    },
+    {
+      "id": "blockscout-usdc-usd",
+      "enabled": true,
+      "required": false,
+      "label": "Etherlink Blockscout USDC exchange rate",
+      "pair": "USDC/USD",
+      "sourceClass": "indexer",
+      "role": "explorer-indexer-monitor",
+      "kind": "blockscout-token",
+      "endpoint": "https://explorer.etherlink.com/api/v2/tokens/0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9"
+    },
+    {
+      "id": "kyber-wxtz-usdc-1wxtz",
+      "enabled": true,
+      "required": true,
+      "label": "Kyber executable WXTZ -> USDC route for 1 WXTZ",
+      "pair": "WXTZ/USDC",
+      "sourceClass": "dex-executable",
+      "role": "essential-dex-monitor",
+      "kind": "kyber-route",
+      "endpoint": "https://aggregator-api.kyberswap.com/etherlink/api/v1/routes",
+      "tokenIn": "0xc9B53AB2679f573e480d01e0f49e2B5CFB7a3EAb",
+      "tokenOut": "0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9",
+      "tokenInSymbol": "WXTZ",
+      "tokenOutSymbol": "USDC",
+      "tokenInDecimals": 18,
+      "tokenOutDecimals": 6,
+      "amountIn": "1000000000000000000",
+      "priceDirection": "tokenOutPerTokenIn"
+    }
+  ]
+}

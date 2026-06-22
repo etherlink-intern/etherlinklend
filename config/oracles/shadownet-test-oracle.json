@@ -1,0 +1,30 @@
+{
+  "status": "draft",
+  "chain": {
+    "name": "Etherlink Shadownet Testnet",
+    "chainId": 127823
+  },
+  "selectedForFirstTestMarket": "TEST_ONLY_FIXED_PRICE_ORACLE",
+  "testOnlyFixedPriceOracle": {
+    "enabled": true,
+    "contract": "TestOnlyFixedPriceOracle",
+    "priceScale": "1e36",
+    "initialPrice": "1e36",
+    "productionApproved": false,
+    "notes": "Mock fixed-price oracle for Shadownet deployment mechanics only. Never use on mainnet."
+  },
+  "pythCandidate": {
+    "enabled": false,
+    "contractAddress": "0xTODO_VERIFY_OFFICIAL_SHADOWNET_ADDRESS",
+    "feedIds": [],
+    "verificationSource": "TODO",
+    "notes": "Do not select until feed support and update flow are verified."
+  },
+  "redStoneCandidate": {
+    "enabled": false,
+    "adapterAddress": "0xTODO_VERIFY_OFFICIAL_SHADOWNET_ADDRESS",
+    "supportedFeeds": [],
+    "verificationSource": "TODO",
+    "notes": "Do not select until adapter behavior, signer assumptions, and freshness checks are verified."
+  }
+}

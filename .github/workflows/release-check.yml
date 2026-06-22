@@ -1,5 +1,13 @@
 name: Release Check
-on: [pull_request]
+# Release-gating only — skipped during scaffold/dev so it does not fail every
+# feature PR. Runs on version tags, PRs targeting release/** branches, and
+# manual dispatch. Re-enable broader triggers as you approach a real release.
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+  pull_request:
+    branches: ['release/**']
 jobs:
   release-check:
     runs-on: ubuntu-latest

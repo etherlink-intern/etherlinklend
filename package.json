@@ -6,7 +6,11 @@
   "scripts": {
     "lint": "solhint \"{src,script,test}/**/*.sol\"",
     "format:check": "forge fmt --check",
-    "slither": "slither . --config-file .slither.json"
+    "slither": "slither . --config-file .slither.json",
+    "oracle:prices": "node tools/oracle-monitor/server.mjs --once",
+    "oracle:prices:table": "node tools/oracle-monitor/server.mjs --table",
+    "oracle:serve": "node tools/oracle-monitor/server.mjs --serve",
+    "test:oracle-monitor": "node test/oracle-monitor/server.test.mjs"
   },
   "devDependencies": {
     "solhint": "^5.2.0",

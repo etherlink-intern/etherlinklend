@@ -1,1 +1,23 @@
-{"name":"Etherlink Shadownet Testnet","chainId":127823,"nativeCurrency":"XTZ","rpcEnv":"ETHERLINK_SHADOWNET_RPC_URL","explorer":"https://shadownet.explorer.etherlink.com","explorerApi":"https://shadownet.explorer.etherlink.com/api","explorerType":"blockscout","verifier":"blockscout","status":"testnet-only"}
+{
+  "name": "Etherlink Shadownet Testnet",
+  "chainId": 127823,
+  "nativeCurrency": {
+    "name": "Tezos",
+    "symbol": "XTZ",
+    "decimals": 18
+  },
+  "rpcEnv": "ETHERLINK_SHADOWNET_RPC_URL",
+  "defaultRpc": "https://node.shadownet.etherlink.com",
+  "explorer": "https://shadownet.explorer.etherlink.com",
+  "explorerApi": "https://shadownet.explorer.etherlink.com/api",
+  "faucet": "https://shadownet.faucet.etherlink.com/",
+  "deploymentStatus": "testnet-only",
+  "allowBroadcast": true,
+  "allowMainnet": false,
+  "requiresConfirmationEnv": "CONFIRM_SHADOWNET_DEPLOYMENT",
+  "notes": [
+    "Verified against https://docs.etherlink.com/get-started/network-information/ on 2026-06-21; re-verify before deployment.",
+    "Public RPC is acceptable for test deployment but should not be relied on for production bots.",
+    "All scripts must guard block.chainid == 127823."
+  ]
+}
