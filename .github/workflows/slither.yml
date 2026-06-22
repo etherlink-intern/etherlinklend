@@ -12,8 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with: { submodules: recursive }
-      - uses: foundry-rs/foundry-toolchain@v1
-      - uses: crytic/slither-action@v0.4.2
+      - uses: foundry-rs/foundry-toolchain@c7450ba673e133f5ee30098b3b54f444d3a2ca2d # v1
+      - uses: crytic/slither-action@b52cc1cbfee9ca3e8722dd5224299d16c9a6b80f # v0.4.2
         id: slither
         continue-on-error: true
         with:
