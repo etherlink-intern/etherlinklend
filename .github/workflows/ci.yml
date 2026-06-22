@@ -4,7 +4,7 @@ jobs:
   forge:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with: { submodules: recursive }
       - uses: pnpm/action-setup@v4
         with: { version: 10.28.1 }
