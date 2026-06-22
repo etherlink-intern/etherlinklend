@@ -20,10 +20,15 @@ updates:
     labels: ["dependencies"]
 
   # GitHub Actions used in workflows — supply-chain hygiene.
+  # Group all Action bumps into a single weekly PR instead of one per action.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
     labels: ["ci", "dependencies"]
 
   # Foundry libraries are git submodules pinned by commit SHA. Dependabot will
