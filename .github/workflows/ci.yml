@@ -8,7 +8,7 @@ jobs:
         with: { submodules: recursive }
       - uses: pnpm/action-setup@v4
         with: { version: 10.28.1 }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with: { node-version: 20, cache: pnpm }
       - uses: foundry-rs/foundry-toolchain@v1
       - run: pnpm install --frozen-lockfile
