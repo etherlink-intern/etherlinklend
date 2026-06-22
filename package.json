@@ -13,7 +13,7 @@
     "test:oracle-monitor": "node test/oracle-monitor/server.test.mjs"
   },
   "devDependencies": {
-    "solhint": "^5.2.0",
+    "solhint": "^6.2.3",
     "@openzeppelin/contracts": "^5.4.0"
   }
 }
