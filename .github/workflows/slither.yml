@@ -28,7 +28,7 @@ jobs:
           path: slither-report.sarif
       # Code scanning upload needs GitHub Advanced Security on PRIVATE repos.
       # Keep it non-fatal so the job stays green when GHAS is unavailable.
-      - uses: github/codeql-action/upload-sarif@v3
+      - uses: github/codeql-action/upload-sarif@v4
         if: always() && hashFiles('slither-report.sarif') != ''
         continue-on-error: true
         with: { sarif_file: slither-report.sarif }
