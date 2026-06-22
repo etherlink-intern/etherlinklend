@@ -1,5 +1,7 @@
 # Etherlink Morpho Deployment Scaffold
 
+**Website:** [etherlinklend.etherlinkinsights.com](https://etherlinklend.etherlinkinsights.com) — informational project landing page. No protocol is deployed; nothing here is live or usable with funds.
+
 This repository is an unaudited planning and scaffold repository for an Etherlink Morpho deployment. It is not production-ready, no production deployment is approved, and no contract in this repository should be used with live funds until every launch gate is complete.
 
 The goal is to prepare an auditable Morpho Blue-based lending deployment for Etherlink. This task populates documentation, launch planning, and risk-process materials only. It does not deploy contracts and does not implement protocol logic.

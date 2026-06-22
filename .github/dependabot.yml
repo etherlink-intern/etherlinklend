@@ -1,0 +1,42 @@
+# Dependabot keeps dependencies patched and surfaces upstream security fixes.
+# Security UPDATES (auto-PRs for known vulns) are already enabled at the repo level;
+# this file adds scheduled VERSION updates and tells Dependabot where to look.
+version: 2
+updates:
+  # Root JS tooling
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels: ["dependencies"]
+
+  # Landing page (Vite/React app)
+  - package-ecosystem: "npm"
+    directory: "/etherlinklend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels: ["dependencies"]
+
+  # GitHub Actions used in workflows — supply-chain hygiene.
+  # Group all Action bumps into a single weekly PR instead of one per action.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    labels: ["ci", "dependencies"]
+
+  # Foundry libraries are git submodules pinned by commit SHA. Dependabot will
+  # raise PRs when upstream advances so we SEE security fixes — but these are
+  # audited pins (esp. morpho-blue core); review deliberately, don't auto-bump.
+  - package-ecosystem: "gitsubmodule"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "submodules"]

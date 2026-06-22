@@ -8,11 +8,15 @@ on:
     tags: ['v*']
   pull_request:
     branches: ['release/**']
+
+permissions:
+  contents: read
+
 jobs:
   release-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with: { fetch-depth: 0, submodules: recursive }
       - run: test -f LICENSE && test -f NOTICE
       - run: test -f docs/upstream.md && grep -Eq '[0-9a-f]{40}' docs/upstream.md

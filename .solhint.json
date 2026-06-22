@@ -18,6 +18,8 @@
     "no-console": "off",
     "import-path-check": "off",
     "gas-custom-errors": "warn",
-    "reason-string": "off"
+    "reason-string": "off",
+    "use-natspec": "off",
+    "gas-small-strings": "off"
   }
 }
