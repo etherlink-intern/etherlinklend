@@ -21,7 +21,7 @@ jobs:
           slither-config: .slither.json
           sarif: slither-report.sarif
       # Always keep the report as a downloadable artifact (works on any repo).
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always() && hashFiles('slither-report.sarif') != ''
         with:
           name: slither-sarif
