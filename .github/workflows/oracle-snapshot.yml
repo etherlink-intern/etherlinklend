@@ -1,0 +1,55 @@
+name: Oracle Snapshot
+
+# Generates a fresh oracle price snapshot every ~15 minutes and publishes it to
+# the orphan `oracle-snapshot` branch. The static NOC dashboard fetches that file
+# (raw.githubusercontent, CORS-enabled) so live data reaches the site WITHOUT the
+# RPC or any API key ever touching the browser.
+#
+# No secrets are required: the monitor falls back to the public Etherlink RPC and
+# all other sources are keyless public APIs. To use a private RPC or a CoinGecko
+# key instead, add repo secrets and pass them as env below.
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: oracle-snapshot
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+      - name: Generate snapshot
+        # ETHERLINK_MAINNET_RPC_URL is optional; without it the monitor uses the
+        # public RPC from config. Add it as a secret to use a dedicated endpoint.
+        env:
+          ETHERLINK_MAINNET_RPC_URL: ${{ secrets.ETHERLINK_MAINNET_RPC_URL }}
+          COINGECKO_API_KEY: ${{ secrets.COINGECKO_API_KEY }}
+        run: node tools/oracle-monitor/server.mjs --once > "$RUNNER_TEMP/snapshot.json"
+      - name: Publish to oracle-snapshot branch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin oracle-snapshot 2>/dev/null && git switch oracle-snapshot \
+            || git switch --orphan oracle-snapshot
+          git rm -rfq . 2>/dev/null || true
+          cp "$RUNNER_TEMP/snapshot.json" snapshot.json
+          git add snapshot.json
+          if git diff --cached --quiet; then
+            echo "No snapshot change; nothing to publish."
+            exit 0
+          fi
+          git commit -q -m "chore: oracle snapshot $(date -u +%Y-%m-%dT%H:%M:%SZ) [skip ci]"
+          git push origin oracle-snapshot

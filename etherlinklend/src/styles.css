@@ -768,6 +768,42 @@
       background: rgba(185, 64, 64, 0.18);
     }
 
+    .feed-row-pending {
+      opacity: 0.58;
+    }
+
+    .feed-state-pending {
+      color: rgba(245, 248, 248, 0.66);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .noc-freshness {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .noc-freshness.is-live {
+      color: #9cf2da;
+      background: rgba(13, 143, 109, 0.15);
+    }
+
+    .noc-freshness.is-stale {
+      color: #ffd58c;
+      background: rgba(183, 131, 22, 0.18);
+    }
+
+    .noc-freshness.is-preview,
+    .noc-freshness.is-loading {
+      color: rgba(245, 248, 248, 0.66);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
     .noc-side {
       display: grid;
       gap: 18px;
