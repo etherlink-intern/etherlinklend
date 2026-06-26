@@ -1,0 +1,418 @@
+{
+  "schemaVersion": 1,
+  "name": "Etherlink WXTZ/USDC price source monitor",
+  "network": {
+    "name": "Etherlink Mainnet",
+    "chainId": 42793,
+    "rpcEnv": "ETHERLINK_MAINNET_RPC_URL",
+    "defaultRpc": "https://node.mainnet.etherlink.com",
+    "explorer": "https://explorer.etherlink.com"
+  },
+  "observedAt": 1782114633,
+  "observedAtIso": "2026-06-22T07:50:33.000Z",
+  "refreshIntervalSeconds": 900,
+  "status": "watch",
+  "referencePolicy": {
+    "method": "median",
+    "includeSourceClasses": [
+      "oracle",
+      "cex",
+      "indexer"
+    ],
+    "excludeSourceClasses": [
+      "dex-executable"
+    ],
+    "warnDeviationBps": 100,
+    "criticalDeviationBps": 250,
+    "notes": [
+      "DEX routes are required monitoring inputs and circuit-breaker signals, but are not used alone as lending oracle references.",
+      "No hardcoded USDC equals 1 USD source is configured. USDC/USD must come from live price sources."
+    ]
+  },
+  "pairs": [
+    {
+      "pair": "USDC/USD",
+      "referencePrice": 0.9998,
+      "referenceMethod": "median:direct",
+      "eligibleSourceCount": 4,
+      "healthySourceCount": 4,
+      "totalSourceCount": 4,
+      "maxDeviationBps": 11.4023
+    },
+    {
+      "pair": "WXTZ/USDC",
+      "referencePrice": 0.232715013003,
+      "referenceMethod": "derived:XTZ/USD divided by USDC/USD",
+      "eligibleSourceCount": 8,
+      "healthySourceCount": 1,
+      "totalSourceCount": 1,
+      "maxDeviationBps": 104.0323
+    },
+    {
+      "pair": "XTZ/USD",
+      "referencePrice": 0.23266847,
+      "referenceMethod": "median:direct",
+      "eligibleSourceCount": 4,
+      "healthySourceCount": 4,
+      "totalSourceCount": 4,
+      "maxDeviationBps": 34.7933
+    }
+  ],
+  "rows": [
+    {
+      "id": "redstone-xtz-usd-etherlink",
+      "label": "RedStone XTZ/USD Etherlink push feed",
+      "pair": "XTZ/USD",
+      "sourceClass": "oracle",
+      "role": "onchain-oracle-input",
+      "required": true,
+      "price": 0.23253694,
+      "observedAt": 1782114633,
+      "updatedAt": 1782114614,
+      "ageSeconds": 19,
+      "stale": false,
+      "status": "ok",
+      "metadata": {
+        "address": "0xe92c00BC72dD12e26E61212c04E8D93aa09624F2",
+        "decimals": 8,
+        "roundId": "4281861",
+        "answeredInRound": "4281861",
+        "startedAt": 1782114614
+      },
+      "referencePrice": 0.23266847,
+      "referenceMethod": "median:direct",
+      "deviationBps": -5.6531,
+      "absDeviationBps": 5.6531,
+      "severity": "none"
+    },
+    {
+      "id": "pyth-xtz-usd-hermes",
+      "label": "Pyth XTZ/USD Hermes price",
+      "pair": "XTZ/USD",
+      "sourceClass": "oracle",
+      "role": "oracle-cross-check",
+      "required": true,
+      "price": 0.23245995,
+      "observedAt": 1782114633,
+      "updatedAt": 1782114631,
+      "ageSeconds": 2,
+      "stale": false,
+      "status": "ok",
+      "metadata": {
+        "feedId": "0affd4b8ad136a21d79bc82450a325ee12ff55a235abc242666e423b8bcffd03",
+        "confidence": 0.00041934000000000003,
+        "expo": -8
+      },
+      "referencePrice": 0.23266847,
+      "referenceMethod": "median:direct",
+      "deviationBps": -8.9621,
+      "absDeviationBps": 8.9621,
+      "severity": "none"
+    },
+    {
+      "id": "pyth-usdc-usd-hermes",
+      "label": "Pyth USDC/USD Hermes price",
+      "pair": "USDC/USD",
+      "sourceClass": "oracle",
+      "role": "oracle-input",
+      "required": true,
+      "price": 0.99975076,
+      "observedAt": 1782114633,
+      "updatedAt": 1782114631,
+      "ageSeconds": 2,
+      "stale": false,
+      "status": "ok",
+      "metadata": {
+        "feedId": "eaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
+        "confidence": 0.00109397,
+        "expo": -8
+      },
+      "referencePrice": 0.9998,
+      "referenceMethod": "median:direct",
+      "deviationBps": -0.4925,
+      "absDeviationBps": 0.4925,
+      "severity": "none"
+    },
+    {
+      "id": "binance-xtz-usdt",
+      "label": "Binance XTZ/USDT ticker",
+      "pair": "XTZ/USD",
+      "sourceClass": "cex",
+      "role": "cex-monitor",
+      "required": false,
+      "price": 0.2328,
+      "observedAt": 1782114633,
+      "updatedAt": 1782114633,
+      "ageSeconds": 0,
+      "stale": false,
+      "status": "ok",
+      "metadata": {
+        "symbol": "XTZUSDT",
+        "quoteProxy": "USDT",
+        "weightedAvgPrice": 0.23331828,
+        "volume": 1067057,
+        "quoteVolume": 248963.90322
+      },
+      "referencePrice": 0.23266847,
+      "referenceMethod": "median:direct",
+      "deviationBps": 5.6531,
+      "absDeviationBps": 5.6531,
+      "severity": "none"
+    },
+    {
+      "id": "binance-usdc-usdt",
+      "label": "Binance USDC/USDT ticker",
+      "pair": "USDC/USD",
+      "sourceClass": "cex",
+      "role": "cex-monitor",
+      "required": false,
+      "price": 1.00094,
+      "observedAt": 1782114633,
+      "updatedAt": 1782114633,
+      "ageSeconds": 0,
+      "stale": false,
+      "status": "ok",
+      "metadata": {
+        "symbol": "USDCUSDT",
+        "quoteProxy": "USDT",
+        "weightedAvgPrice": 1.00096655,
+        "volume": 780702726,
+        "quoteVolume": 781457312.92946
+      },
+      "referencePrice": 0.9998,
+      "referenceMethod": "median:direct",
+      "deviationBps": 11.4023,
+      "absDeviationBps": 11.4023,
+      "severity": "none"
+    },
+    {
+      "id": "coingecko-wxtz-usd",
+      "label": "CoinGecko WXTZ token price",
+      "pair": "XTZ/USD",
+      "sourceClass": "indexer",
+      "role": "offchain-indexer-monitor",
+      "required": false,
+      "price": 0.233478,
+      "observedAt": 1782114633,
+      "updatedAt": 1782114571,
+      "ageSeconds": 62,
+      "stale": false,
+      "status": "ok",
+      "metadata": {
+        "platform": "etherlink",
+        "contract": "0xc9B53AB2679f573e480d01e0f49e2B5CFB7a3EAb"
+      },
+      "referencePrice": 0.23266847,
+      "referenceMethod": "median:direct",
+      "deviationBps": 34.7933,
+      "absDeviationBps": 34.7933,
+      "severity": "none"
+    },
+    {
+      "id": "coingecko-usdc-usd",
+      "label": "CoinGecko USDC token price",
+      "pair": "USDC/USD",
+      "sourceClass": "indexer",
+      "role": "offchain-indexer-monitor",
+      "required": false,
+      "price": 0.9998,
+      "observedAt": 1782114633,
+      "updatedAt": 1782114626,
+      "ageSeconds": 7,
+      "stale": false,
+      "status": "ok",
+      "metadata": {
+        "platform": "etherlink",
+        "contract": "0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9"
+      },
+      "referencePrice": 0.9998,
+      "referenceMethod": "median:direct",
+      "deviationBps": 0,
+      "absDeviationBps": 0,
+      "severity": "none"
+    },
+    {
+      "id": "blockscout-usdc-usd",
+      "label": "Etherlink Blockscout USDC exchange rate",
+      "pair": "USDC/USD",
+      "sourceClass": "indexer",
+      "role": "explorer-indexer-monitor",
+      "required": false,
+      "price": 0.9998,
+      "observedAt": 1782114633,
+      "updatedAt": 1782114633,
+      "ageSeconds": 0,
+      "stale": false,
+      "status": "ok",
+      "metadata": {
+        "symbol": "USDC",
+        "name": "USDC",
+        "decimals": 6
+      },
+      "referencePrice": 0.9998,
+      "referenceMethod": "median:direct",
+      "deviationBps": 0,
+      "absDeviationBps": 0,
+      "severity": "none"
+    },
+    {
+      "id": "kyber-wxtz-usdc-1wxtz",
+      "label": "Kyber executable WXTZ -> USDC route for 1 WXTZ",
+      "pair": "WXTZ/USDC",
+      "sourceClass": "dex-executable",
+      "role": "essential-dex-monitor",
+      "required": true,
+      "price": 0.235136,
+      "observedAt": 1782114633,
+      "updatedAt": 1782114633,
+      "ageSeconds": 0,
+      "stale": false,
+      "status": "ok",
+      "metadata": {
+        "tokenIn": "WXTZ",
+        "tokenOut": "USDC",
+        "amountIn": 1,
+        "amountOut": 0.235136,
+        "amountInUsd": 0.2324416287260033,
+        "amountOutUsd": 0.23508415053665452,
+        "protocols": [
+          "curve-twocrypto-ng"
+        ]
+      },
+      "referencePrice": 0.232715013003,
+      "referenceMethod": "derived:XTZ/USD divided by USDC/USD",
+      "deviationBps": 104.0323,
+      "absDeviationBps": 104.0323,
+      "severity": "warn"
+    }
+  ],
+  "table": [
+    {
+      "pair": "XTZ/USD",
+      "source": "redstone-xtz-usd-etherlink",
+      "class": "oracle",
+      "role": "onchain-oracle-input",
+      "price": 0.23253694,
+      "referencePrice": 0.23266847,
+      "deviationBps": -5.6531,
+      "status": "ok",
+      "severity": "none",
+      "ageSeconds": 19,
+      "required": true
+    },
+    {
+      "pair": "XTZ/USD",
+      "source": "pyth-xtz-usd-hermes",
+      "class": "oracle",
+      "role": "oracle-cross-check",
+      "price": 0.23245995,
+      "referencePrice": 0.23266847,
+      "deviationBps": -8.9621,
+      "status": "ok",
+      "severity": "none",
+      "ageSeconds": 2,
+      "required": true
+    },
+    {
+      "pair": "USDC/USD",
+      "source": "pyth-usdc-usd-hermes",
+      "class": "oracle",
+      "role": "oracle-input",
+      "price": 0.99975076,
+      "referencePrice": 0.9998,
+      "deviationBps": -0.4925,
+      "status": "ok",
+      "severity": "none",
+      "ageSeconds": 2,
+      "required": true
+    },
+    {
+      "pair": "XTZ/USD",
+      "source": "binance-xtz-usdt",
+      "class": "cex",
+      "role": "cex-monitor",
+      "price": 0.2328,
+      "referencePrice": 0.23266847,
+      "deviationBps": 5.6531,
+      "status": "ok",
+      "severity": "none",
+      "ageSeconds": 0,
+      "required": false
+    },
+    {
+      "pair": "USDC/USD",
+      "source": "binance-usdc-usdt",
+      "class": "cex",
+      "role": "cex-monitor",
+      "price": 1.00094,
+      "referencePrice": 0.9998,
+      "deviationBps": 11.4023,
+      "status": "ok",
+      "severity": "none",
+      "ageSeconds": 0,
+      "required": false
+    },
+    {
+      "pair": "XTZ/USD",
+      "source": "coingecko-wxtz-usd",
+      "class": "indexer",
+      "role": "offchain-indexer-monitor",
+      "price": 0.233478,
+      "referencePrice": 0.23266847,
+      "deviationBps": 34.7933,
+      "status": "ok",
+      "severity": "none",
+      "ageSeconds": 62,
+      "required": false
+    },
+    {
+      "pair": "USDC/USD",
+      "source": "coingecko-usdc-usd",
+      "class": "indexer",
+      "role": "offchain-indexer-monitor",
+      "price": 0.9998,
+      "referencePrice": 0.9998,
+      "deviationBps": 0,
+      "status": "ok",
+      "severity": "none",
+      "ageSeconds": 7,
+      "required": false
+    },
+    {
+      "pair": "USDC/USD",
+      "source": "blockscout-usdc-usd",
+      "class": "indexer",
+      "role": "explorer-indexer-monitor",
+      "price": 0.9998,
+      "referencePrice": 0.9998,
+      "deviationBps": 0,
+      "status": "ok",
+      "severity": "none",
+      "ageSeconds": 0,
+      "required": false
+    },
+    {
+      "pair": "WXTZ/USDC",
+      "source": "kyber-wxtz-usdc-1wxtz",
+      "class": "dex-executable",
+      "role": "essential-dex-monitor",
+      "price": 0.235136,
+      "referencePrice": 0.232715013003,
+      "deviationBps": 104.0323,
+      "status": "ok",
+      "severity": "warn",
+      "ageSeconds": 0,
+      "required": true
+    }
+  ],
+  "alerts": [
+    {
+      "source": "kyber-wxtz-usdc-1wxtz",
+      "pair": "WXTZ/USDC",
+      "status": "ok",
+      "severity": "warn",
+      "required": true,
+      "deviationBps": 104.0323
+    }
+  ]
+}
