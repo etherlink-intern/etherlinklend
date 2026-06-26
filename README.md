@@ -167,3 +167,15 @@ A prior Etherlink lending deployment reportedly suffered a rounding-related inci
 | Risk templates | [config/risk/README.md](config/risk/README.md) |
 | Upstream pins | [docs/upstream.md](docs/upstream.md) |
 | Audit tracking | [audits/README.md](audits/README.md) |
+
+## Contributing
+
+Contributions are welcome for documentation, tests, monitoring, deployment checks, and risk-review improvements. Please keep changes narrowly scoped, include the relevant verification command output in pull requests, and do not introduce production-deployment assumptions without linking to the launch checklist and risk review that justify them.
+
+Security-sensitive findings should follow [SECURITY.md](SECURITY.md) instead of public issue discussion. Do not include private keys, RPC credentials, deployment secrets, or exploitable live-market details in issues, commits, or pull requests.
+
+## License And Notices
+
+This repository scaffold is licensed under `GPL-2.0-or-later OR BUSL-1.1`, matching Morpho Blue compatibility requirements where applicable. See [LICENSE](LICENSE) for the repository license statement and [NOTICE](NOTICE) for attribution and upstream notice information.
+
+Upstream dependencies, submodules, and referenced protocols retain their own licenses. Legal review is required before production release or any live-funds deployment.
