@@ -2,6 +2,57 @@
 
 Any unchecked launch-blocking item prevents mainnet deployment.
 
+## Checklist Control
+
+Use this file as the launch gate index. A checkbox can only move to done after
+the owner has linked evidence in the evidence log and the required review gate
+has passed.
+
+Status terms:
+
+- `TODO`: no merged evidence yet.
+- `IN PROGRESS`: a PR or external review is active.
+- `BLOCKED`: waiting on missing evidence, owner decision, external dependency,
+  or failed validation.
+- `DONE`: evidence is linked, reviewed, and merged.
+- `N/A`: explicitly out of scope for the current launch, with rationale.
+
+## Owner And Date Matrix
+
+Dates are gate deadlines, not calendar promises. Replace role owners with named
+owners before Shadownet deployment.
+
+| Gate | Primary owner | Reviewers | Due gate | Required evidence | Status |
+|---|---|---|---|---|---|
+| Upstream and licensing | Release owner | Legal reviewer, protocol engineer | Before Shadownet deployment | Upstream SHA table, license review notes, NOTICE delta, fork policy review | TODO |
+| Build and tests | Protocol engineer | Release owner | Every PR and before each deployment rehearsal | CI run, local command output where available, gas snapshot decision | TODO |
+| Security review | Security reviewer | Protocol engineer, external auditor | Before mainnet approval | Static-analysis results, fork-diff report, finding tracker, audit package | TODO |
+| Oracle readiness | Oracle reviewer | Risk owner, protocol engineer, monitoring owner | Before market approval | Feed proofs, decimals/freshness evidence, failure-mode tests, fallback decision | TODO |
+| Market readiness | Risk owner | Oracle reviewer, security reviewer, operations lead | Before Shadownet market creation | Asset reviews, market config, LLTV/IRM/cap rationale, liquidation assumptions | TODO |
+| Etherlink readiness | Operations lead | Deployment owner, monitoring owner | Before Shadownet deployment and again before mainnet | Chain/RPC/explorer proofs, failover plan, monitoring and bot readiness | TODO |
+| Deployment readiness | Deployment owner | Release owner, security reviewer | Before each broadcast | Dry-run evidence, admin/multisig proof, artifact validation, final approval | TODO |
+| Post-launch operations | Operations lead | Risk owner, monitoring owner | Before mainnet market visibility | Watch assignment, incident contacts, risk report cadence, public docs update | TODO |
+
+## Evidence Log Format
+
+Add evidence under the relevant checklist section or in a linked PR using this
+format. Keep command output concise, but include enough detail for a reviewer to
+reproduce the claim.
+
+```text
+Evidence ID: YYYYMMDD-short-slug
+Checklist item(s): <section and checkbox text>
+Status: TODO | IN PROGRESS | BLOCKED | DONE | N/A
+Owner: <named owner or role owner>
+Due gate: <gate from owner/date matrix>
+Evidence source: <PR URL, commit SHA, CI run URL, doc path, artifact path, or external review link>
+Validation: <commands run, CI jobs, on-chain calls, audit references, or manual review>
+Result: <pass/fail/blocked summary>
+Reviewer: <reviewer or required reviewer role>
+Decision: <accepted, rejected, needs follow-up, or N/A with rationale>
+Follow-up: <issue, PR, or explicit none>
+```
+
 ## Upstream And Licensing
 
 - [ ] Upstream SHAs pinned.
@@ -83,4 +134,7 @@ Any unchecked launch-blocking item prevents mainnet deployment.
 
 ## Blocking TODOs
 
-- Owner: TODO release owner. Action: assign owners and dates for every unchecked item. Date: TODO before Shadownet deployment.
+- Owner: release owner. Action: replace role owners in the owner/date matrix
+  with named owners. Date: before Shadownet deployment.
+- Owner: release owner. Action: require every future checklist-closing PR to
+  include an evidence log entry. Date: effective immediately.
