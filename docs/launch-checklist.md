@@ -62,6 +62,8 @@ Follow-up: <issue, PR, or explicit none>
 
 ## Build And Tests
 
+Baseline verification record: [Baseline Verification](baseline-verification.md).
+
 - [ ] Clean build.
 - [ ] Unit tests passing.
 - [ ] Fork tests passing.
