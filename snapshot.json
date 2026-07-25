@@ -8,8 +8,8 @@
     "defaultRpc": "https://node.mainnet.etherlink.com",
     "explorer": "https://explorer.etherlink.com"
   },
-  "observedAt": 1784945017,
-  "observedAtIso": "2026-07-25T02:03:37.000Z",
+  "observedAt": 1784956962,
+  "observedAtIso": "2026-07-25T05:22:42.000Z",
   "refreshIntervalSeconds": 900,
   "status": "alert",
   "referencePolicy": {
@@ -32,30 +32,30 @@
   "pairs": [
     {
       "pair": "USDC/USD",
-      "referencePrice": 0.999985,
+      "referencePrice": 0.999996,
       "referenceMethod": "median:direct",
       "eligibleSourceCount": 3,
       "healthySourceCount": 3,
       "totalSourceCount": 4,
-      "maxDeviationBps": 240.1536
+      "maxDeviationBps": 250.041
     },
     {
       "pair": "WXTZ/USDC",
-      "referencePrice": 0.226399455992,
+      "referencePrice": 0.224747368989,
       "referenceMethod": "derived:XTZ/USD divided by USDC/USD",
       "eligibleSourceCount": 6,
       "healthySourceCount": 1,
       "totalSourceCount": 1,
-      "maxDeviationBps": 267.6042
+      "maxDeviationBps": 343.0799
     },
     {
       "pair": "XTZ/USD",
-      "referencePrice": 0.22639606,
+      "referencePrice": 0.22474647,
       "referenceMethod": "median:direct",
       "eligibleSourceCount": 3,
       "healthySourceCount": 3,
       "totalSourceCount": 4,
-      "maxDeviationBps": 35.0245
+      "maxDeviationBps": 283.4096
     }
   ],
   "rows": [
@@ -66,23 +66,23 @@
       "sourceClass": "oracle",
       "role": "onchain-oracle-input",
       "required": true,
-      "price": 0.22639606,
-      "observedAt": 1784945017,
-      "updatedAt": 1784945014,
-      "ageSeconds": 3,
+      "price": 0.22471857,
+      "observedAt": 1784956962,
+      "updatedAt": 1784956945,
+      "ageSeconds": 17,
       "stale": false,
       "status": "ok",
       "metadata": {
         "address": "0xe92c00BC72dD12e26E61212c04E8D93aa09624F2",
         "decimals": 8,
-        "roundId": "4434196",
-        "answeredInRound": "4434196",
-        "startedAt": 1784945014
+        "roundId": "4435053",
+        "answeredInRound": "4435053",
+        "startedAt": 1784956945
       },
-      "referencePrice": 0.22639606,
+      "referencePrice": 0.22474647,
       "referenceMethod": "median:direct",
-      "deviationBps": 0,
-      "absDeviationBps": 0,
+      "deviationBps": -1.2414,
+      "absDeviationBps": 1.2414,
       "severity": "none"
     },
     {
@@ -92,21 +92,21 @@
       "sourceClass": "oracle",
       "role": "oracle-cross-check",
       "required": true,
-      "price": 0.22636668,
-      "observedAt": 1784945017,
-      "updatedAt": 1784945013,
-      "ageSeconds": 4,
+      "price": 0.22474647,
+      "observedAt": 1784956962,
+      "updatedAt": 1784956957,
+      "ageSeconds": 5,
       "stale": false,
       "status": "ok",
       "metadata": {
         "feedId": "0affd4b8ad136a21d79bc82450a325ee12ff55a235abc242666e423b8bcffd03",
-        "confidence": 0.00030354,
+        "confidence": 0.00033312,
         "expo": -8
       },
-      "referencePrice": 0.22639606,
+      "referencePrice": 0.22474647,
       "referenceMethod": "median:direct",
-      "deviationBps": -1.2977,
-      "absDeviationBps": 1.2977,
+      "deviationBps": 0,
+      "absDeviationBps": 0,
       "severity": "none"
     },
     {
@@ -116,21 +116,21 @@
       "sourceClass": "oracle",
       "role": "oracle-input",
       "required": true,
-      "price": 0.99994728,
-      "observedAt": 1784945017,
-      "updatedAt": 1784945013,
-      "ageSeconds": 4,
+      "price": 0.999949,
+      "observedAt": 1784956962,
+      "updatedAt": 1784956957,
+      "ageSeconds": 5,
       "stale": false,
       "status": "ok",
       "metadata": {
         "feedId": "eaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
-        "confidence": 0.00089518,
+        "confidence": 0.0007470900000000001,
         "expo": -8
       },
-      "referencePrice": 0.999985,
+      "referencePrice": 0.999996,
       "referenceMethod": "median:direct",
-      "deviationBps": -0.3772,
-      "absDeviationBps": 0.3772,
+      "deviationBps": -0.47,
+      "absDeviationBps": 0.47,
       "severity": "none"
     },
     {
@@ -140,13 +140,13 @@
       "sourceClass": "cex",
       "role": "cex-monitor",
       "required": false,
-      "observedAt": 1784945017,
+      "observedAt": 1784956962,
       "updatedAt": null,
       "ageSeconds": null,
       "stale": false,
       "status": "error",
       "error": "HTTP 451: {\n  \"code\": 0,\n  \"msg\": \"Service unavailable from a restricted location according to 'b. Eligibility' in https://www.binance.com/en/terms. Please contact customer service if you be",
-      "referencePrice": 0.22639606,
+      "referencePrice": 0.22474647,
       "referenceMethod": "median:direct",
       "deviationBps": null,
       "absDeviationBps": null,
@@ -159,13 +159,13 @@
       "sourceClass": "cex",
       "role": "cex-monitor",
       "required": false,
-      "observedAt": 1784945017,
+      "observedAt": 1784956962,
       "updatedAt": null,
       "ageSeconds": null,
       "stale": false,
       "status": "error",
       "error": "HTTP 451: {\n  \"code\": 0,\n  \"msg\": \"Service unavailable from a restricted location according to 'b. Eligibility' in https://www.binance.com/en/terms. Please contact customer service if you be",
-      "referencePrice": 0.999985,
+      "referencePrice": 0.999996,
       "referenceMethod": "median:direct",
       "deviationBps": null,
       "absDeviationBps": null,
@@ -178,21 +178,21 @@
       "sourceClass": "indexer",
       "role": "offchain-indexer-monitor",
       "required": false,
-      "price": 0.227189,
-      "observedAt": 1784945017,
-      "updatedAt": 1784945006,
-      "ageSeconds": 11,
+      "price": 0.231116,
+      "observedAt": 1784956962,
+      "updatedAt": 1784956890,
+      "ageSeconds": 72,
       "stale": false,
       "status": "ok",
       "metadata": {
         "platform": "etherlink",
         "contract": "0xc9B53AB2679f573e480d01e0f49e2B5CFB7a3EAb"
       },
-      "referencePrice": 0.22639606,
+      "referencePrice": 0.22474647,
       "referenceMethod": "median:direct",
-      "deviationBps": 35.0245,
-      "absDeviationBps": 35.0245,
-      "severity": "none"
+      "deviationBps": 283.4096,
+      "absDeviationBps": 283.4096,
+      "severity": "critical"
     },
     {
       "id": "coingecko-usdc-usd",
@@ -201,21 +201,21 @@
       "sourceClass": "indexer",
       "role": "offchain-indexer-monitor",
       "required": false,
-      "price": 1.024,
-      "observedAt": 1784945017,
-      "updatedAt": 1784944940,
-      "ageSeconds": 77,
+      "price": 1.025,
+      "observedAt": 1784956962,
+      "updatedAt": 1784956280,
+      "ageSeconds": 682,
       "stale": false,
       "status": "ok",
       "metadata": {
         "platform": "etherlink",
         "contract": "0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9"
       },
-      "referencePrice": 0.999985,
+      "referencePrice": 0.999996,
       "referenceMethod": "median:direct",
-      "deviationBps": 240.1536,
-      "absDeviationBps": 240.1536,
-      "severity": "warn"
+      "deviationBps": 250.041,
+      "absDeviationBps": 250.041,
+      "severity": "critical"
     },
     {
       "id": "blockscout-usdc-usd",
@@ -224,9 +224,9 @@
       "sourceClass": "indexer",
       "role": "explorer-indexer-monitor",
       "required": false,
-      "price": 0.999985,
-      "observedAt": 1784945017,
-      "updatedAt": 1784945017,
+      "price": 0.999996,
+      "observedAt": 1784956962,
+      "updatedAt": 1784956962,
       "ageSeconds": 0,
       "stale": false,
       "status": "ok",
@@ -235,7 +235,7 @@
         "name": "USDC",
         "decimals": 6
       },
-      "referencePrice": 0.999985,
+      "referencePrice": 0.999996,
       "referenceMethod": "median:direct",
       "deviationBps": 0,
       "absDeviationBps": 0,
@@ -249,8 +249,8 @@
       "role": "essential-dex-monitor",
       "required": true,
       "price": 0.232458,
-      "observedAt": 1784945017,
-      "updatedAt": 1784945017,
+      "observedAt": 1784956962,
+      "updatedAt": 1784956962,
       "ageSeconds": 0,
       "stale": false,
       "status": "ok",
@@ -259,16 +259,16 @@
         "tokenOut": "USDC",
         "amountIn": 1,
         "amountOut": 0.232458,
-        "amountInUsd": 0.2269636433770558,
-        "amountOutUsd": 0.23237964056505012,
+        "amountInUsd": 0.22497516369363332,
+        "amountOutUsd": 0.23243935431921867,
         "protocols": [
           "curve-twocrypto-ng"
         ]
       },
-      "referencePrice": 0.226399455992,
+      "referencePrice": 0.224747368989,
       "referenceMethod": "derived:XTZ/USD divided by USDC/USD",
-      "deviationBps": 267.6042,
-      "absDeviationBps": 267.6042,
+      "deviationBps": 343.0799,
+      "absDeviationBps": 343.0799,
       "severity": "critical"
     }
   ],
@@ -278,12 +278,12 @@
       "source": "redstone-xtz-usd-etherlink",
       "class": "oracle",
       "role": "onchain-oracle-input",
-      "price": 0.22639606,
-      "referencePrice": 0.22639606,
-      "deviationBps": 0,
+      "price": 0.22471857,
+      "referencePrice": 0.22474647,
+      "deviationBps": -1.2414,
       "status": "ok",
       "severity": "none",
-      "ageSeconds": 3,
+      "ageSeconds": 17,
       "required": true
     },
     {
@@ -291,12 +291,12 @@
       "source": "pyth-xtz-usd-hermes",
       "class": "oracle",
       "role": "oracle-cross-check",
-      "price": 0.22636668,
-      "referencePrice": 0.22639606,
-      "deviationBps": -1.2977,
+      "price": 0.22474647,
+      "referencePrice": 0.22474647,
+      "deviationBps": 0,
       "status": "ok",
       "severity": "none",
-      "ageSeconds": 4,
+      "ageSeconds": 5,
       "required": true
     },
     {
@@ -304,12 +304,12 @@
       "source": "pyth-usdc-usd-hermes",
       "class": "oracle",
       "role": "oracle-input",
-      "price": 0.99994728,
-      "referencePrice": 0.999985,
-      "deviationBps": -0.3772,
+      "price": 0.999949,
+      "referencePrice": 0.999996,
+      "deviationBps": -0.47,
       "status": "ok",
       "severity": "none",
-      "ageSeconds": 4,
+      "ageSeconds": 5,
       "required": true
     },
     {
@@ -318,7 +318,7 @@
       "class": "cex",
       "role": "cex-monitor",
       "price": null,
-      "referencePrice": 0.22639606,
+      "referencePrice": 0.22474647,
       "deviationBps": null,
       "status": "error",
       "severity": "none",
@@ -331,7 +331,7 @@
       "class": "cex",
       "role": "cex-monitor",
       "price": null,
-      "referencePrice": 0.999985,
+      "referencePrice": 0.999996,
       "deviationBps": null,
       "status": "error",
       "severity": "none",
@@ -343,12 +343,12 @@
       "source": "coingecko-wxtz-usd",
       "class": "indexer",
       "role": "offchain-indexer-monitor",
-      "price": 0.227189,
-      "referencePrice": 0.22639606,
-      "deviationBps": 35.0245,
+      "price": 0.231116,
+      "referencePrice": 0.22474647,
+      "deviationBps": 283.4096,
       "status": "ok",
-      "severity": "none",
-      "ageSeconds": 11,
+      "severity": "critical",
+      "ageSeconds": 72,
       "required": false
     },
     {
@@ -356,12 +356,12 @@
       "source": "coingecko-usdc-usd",
       "class": "indexer",
       "role": "offchain-indexer-monitor",
-      "price": 1.024,
-      "referencePrice": 0.999985,
-      "deviationBps": 240.1536,
+      "price": 1.025,
+      "referencePrice": 0.999996,
+      "deviationBps": 250.041,
       "status": "ok",
-      "severity": "warn",
-      "ageSeconds": 77,
+      "severity": "critical",
+      "ageSeconds": 682,
       "required": false
     },
     {
@@ -369,8 +369,8 @@
       "source": "blockscout-usdc-usd",
       "class": "indexer",
       "role": "explorer-indexer-monitor",
-      "price": 0.999985,
-      "referencePrice": 0.999985,
+      "price": 0.999996,
+      "referencePrice": 0.999996,
       "deviationBps": 0,
       "status": "ok",
       "severity": "none",
@@ -383,8 +383,8 @@
       "class": "dex-executable",
       "role": "essential-dex-monitor",
       "price": 0.232458,
-      "referencePrice": 0.226399455992,
-      "deviationBps": 267.6042,
+      "referencePrice": 0.224747368989,
+      "deviationBps": 343.0799,
       "status": "ok",
       "severity": "critical",
       "ageSeconds": 0,
@@ -411,12 +411,20 @@
       "error": "HTTP 451: {\n  \"code\": 0,\n  \"msg\": \"Service unavailable from a restricted location according to 'b. Eligibility' in https://www.binance.com/en/terms. Please contact customer service if you be"
     },
     {
+      "source": "coingecko-wxtz-usd",
+      "pair": "XTZ/USD",
+      "status": "ok",
+      "severity": "critical",
+      "required": false,
+      "deviationBps": 283.4096
+    },
+    {
       "source": "coingecko-usdc-usd",
       "pair": "USDC/USD",
       "status": "ok",
-      "severity": "warn",
+      "severity": "critical",
       "required": false,
-      "deviationBps": 240.1536
+      "deviationBps": 250.041
     },
     {
       "source": "kyber-wxtz-usdc-1wxtz",
@@ -424,7 +432,7 @@
       "status": "ok",
       "severity": "critical",
       "required": true,
-      "deviationBps": 267.6042
+      "deviationBps": 343.0799
     }
   ]
 }
