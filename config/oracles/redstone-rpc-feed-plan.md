@@ -30,6 +30,14 @@ Etherlink documentation lists a RedStone XTZ/USD Chainlink-style feed:
 
 Those addresses are useful for reading XTZ/USD. They do not automatically provide a complete Morpho WXTZ-collateral / USDC-borrow oracle.
 
+Both addresses have now been verified live, and the supported-feed set has been
+enumerated on-chain: see
+[RedStone Etherlink Feed-Support Check](redstone-etherlink-feed-support.md).
+The result is that the adapter supports **XTZ, ETH, and BTC only** —
+`getValueForDataFeed(bytes32("USDC"))` **reverts**. The signer threshold is
+**2**. RedStone therefore cannot supply the USDC/USD leg on Etherlink, and an
+on-chain Pyth contract is the currently identified source for it.
+
 For a WXTZ/USDC Morpho market, the oracle must return the value of one collateral asset quoted in the loan asset. A production design still needs:
 
 - A verified WXTZ-to-XTZ assumption and WXTZ contract risk review.

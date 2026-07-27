@@ -87,6 +87,11 @@ Baseline verification record: [Baseline Verification](baseline-verification.md).
 
 ## Oracle Readiness
 
+Feed-support evidence:
+[RedStone Etherlink Feed-Support Check](../config/oracles/redstone-etherlink-feed-support.md).
+Adapter supports XTZ/ETH/BTC only; USDC reverts. Signer threshold 2. The
+USDC/USD leg requires an on-chain Pyth contract.
+
 - [ ] Oracle source selected.
 - [ ] Feed exists.
 - [ ] Feed decimals verified.
