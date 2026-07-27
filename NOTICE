@@ -4,6 +4,20 @@ This project is intended as a Morpho Blue-based fork/deployment scaffold for an 
 
 Upstream Morpho contributors retain their notices, copyrights, and licenses. Upstream licenses and attribution MUST be preserved.
 
-This repository currently references upstream Morpho Blue, Morpho Blue IRM, Morpho Blue oracles, Forge std, OpenZeppelin contracts, and nested dependencies through pinned submodules or development dependencies. See `docs/upstream.md`.
+This repository references the following upstream projects through pinned submodules or development dependencies. Licenses below were verified at the pinned SHAs recorded in `docs/upstream.md`; see `docs/license-review.md` for the review that produced them.
+
+  Morpho Blue              (morpho-org/morpho-blue)           GPL-2.0-or-later
+  Morpho Blue IRM          (morpho-org/morpho-blue-irm)       MIT
+  Morpho Blue oracles      (morpho-org/morpho-blue-oracles)   GPL-2.0-or-later
+  OpenZeppelin contracts   (OpenZeppelin/openzeppelin-contracts)  MIT
+  Forge std                (foundry-rs/forge-std)             MIT OR Apache-2.0
+  Solmate                  (transmissions11/solmate)          AGPL-3.0
+  ds-test                  (dapphub/ds-test)                  GPL-3.0
+  halmos-cheatcodes        (a16z/halmos-cheatcodes)           AGPL-3.0
+  erc4626-tests            (a16z/erc4626-tests)               AGPL-3.0
+
+Solmate, ds-test, halmos-cheatcodes, and erc4626-tests are test and verification tooling. They are not imported by any component in the first-launch deployment scope frozen in `docs/adr/0003-first-launch-component-scope.md`, and no AGPL-3.0 or GPL-3.0 code appears in the import closure of any contract intended for deployment. This was verified mechanically; see `tools/license/closure.py`.
+
+Upstream Morpho removed the BUSL-1.1 licensing option from Morpho Blue and Morpho Blue oracles in 2026. This repository's own `LICENSE` still offers `GPL-2.0-or-later OR BUSL-1.1`. Reconciling that declaration with the current upstream licensing is an open item for legal review, recorded as Finding 2 in `docs/license-review.md`. No licensing position is changed by this notice.
 
 Legal review is required before production release. Do not remove upstream attribution.

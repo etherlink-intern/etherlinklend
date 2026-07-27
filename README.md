@@ -166,6 +166,7 @@ A prior Etherlink lending deployment reportedly suffered a rounding-related inci
 | Price source monitor | [docs/oracle-price-monitor.md](docs/oracle-price-monitor.md) |
 | Risk templates | [config/risk/README.md](config/risk/README.md) |
 | Upstream pins | [docs/upstream.md](docs/upstream.md) |
+| License review | [docs/license-review.md](docs/license-review.md) |
 | Audit tracking | [audits/README.md](audits/README.md) |
 
 ## Contributing
