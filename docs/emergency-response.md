@@ -41,6 +41,26 @@ Some Morpho Blue components may be immutable. Emergency response may depend on m
 
 Do not imply a pause function exists unless confirmed in the actual deployed component.
 
+For the frozen first-launch scope in
+[ADR 0003](adr/0003-first-launch-component-scope.md), this is now confirmed
+against the pinned source: **`Morpho.sol` has no pause or freeze function.**
+The complete owner surface is `setOwner`, `enableIrm`, `enableLltv`, `setFee`,
+and `setFeeRecipient`, and there is no `disableIrm` or `disableLltv`.
+
+The multisig is therefore not an emergency brake. Incident response for the
+first launch is limited to:
+
+- Frontend delisting and user-facing warnings.
+- User and partner communication.
+- Oracle-level action, only where the oracle is ours and has controls. The
+  oracle is selected in Phase 3; whether it has any emergency control is a
+  Phase 3 requirement, not an assumption.
+- Liquidation-side response, including funding and prioritizing liquidators.
+- Off-chain cap and curation controls.
+
+Any incident plan that assumes borrowing can be halted on-chain is invalid for
+this scope.
+
 ## User Communication Template
 
 ```text
