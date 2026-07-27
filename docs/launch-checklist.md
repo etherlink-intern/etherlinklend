@@ -55,6 +55,10 @@ Follow-up: <issue, PR, or explicit none>
 
 ## Upstream And Licensing
 
+License review record: [License And Legal Review](license-review.md). The
+technical review is complete; legal signoff is the outstanding gate and is
+tracked in that document's Signoff section.
+
 - [ ] Upstream SHAs pinned.
 - [ ] Licenses reviewed.
 - [ ] NOTICE updated.

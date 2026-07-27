@@ -11,11 +11,14 @@ The rows below reflect the current local repository/submodule state. Before depl
 | Component | Upstream repo | Commit SHA | License | Usage | Local path | Status | Notes |
 |---|---|---|---|---|---|---|---|
 | Morpho Blue core | `https://github.com/morpho-org/morpho-blue` | `3085651a79553bbabbfd8be309c262dab45b686e` | GPL-2.0-or-later (BUSL-1.1 option removed upstream, see License Notes) | Core reference and interfaces | `lib/morpho-blue` | Pinned submodule | No core logic modified in this scaffold. Updated via PR #38; range contains no `src/` changes. |
-| Morpho Blue IRM | `https://github.com/morpho-org/morpho-blue-irm` | `a1a87fd5a7ee13873ea9d2bbd87e9c7b2cdbbef3` | MIT, verify before launch | IRM package/reference | `lib/morpho-blue-irm` | Pinned submodule | Verification settings may differ by historical deployment. |
+| Morpho Blue IRM | `https://github.com/morpho-org/morpho-blue-irm` | `a1a87fd5a7ee13873ea9d2bbd87e9c7b2cdbbef3` | MIT (verified) | IRM package/reference | `lib/morpho-blue-irm` | Pinned submodule | Verification settings may differ by historical deployment. |
 | Morpho Blue oracles | `https://github.com/morpho-org/morpho-blue-oracles` | `a036defc62db58a0cc692b90c83148b1b9bc8052` | GPL-2.0-or-later (BUSL-1.1 option removed upstream, see License Notes) | Reference oracle implementations | `lib/morpho-blue-oracles` | Pinned submodule | Do not assume Etherlink feed availability. Updated via PR #35; range is a `LICENSE`-only change. |
-| Forge std | `https://github.com/foundry-rs/forge-std` | `bf647bd6046f2f7da30d0c2bf435e5c76a780c1b` | MIT/Apache-2.0, verify before launch | Tests and scripts | `lib/forge-std` | Pinned submodule | Development dependency. v1.16.2, updated via PR #28. |
-| OpenZeppelin contracts | `https://github.com/OpenZeppelin/openzeppelin-contracts` | `932fddf69a699a9a80fd2396fd1a2ab91cdda123` | MIT, verify before launch | Nested dependency of Morpho Blue oracles | `lib/morpho-blue-oracles/lib/openzeppelin-contracts` | Nested pinned submodule | Not a direct root dependency. |
-| Solmate | `https://github.com/transmissions11/solmate` | `fadb2e2778adbf01c80275bfb99e5c14969d964b` | TODO verify before launch | Nested dependency of Morpho Blue IRM | `lib/morpho-blue-irm/lib/solmate` | Nested pinned submodule | License review required if used in production artifacts. |
+| Forge std | `https://github.com/foundry-rs/forge-std` | `bf647bd6046f2f7da30d0c2bf435e5c76a780c1b` | MIT OR Apache-2.0 (verified) | Tests and scripts | `lib/forge-std` | Pinned submodule | Development dependency. v1.16.2, updated via PR #28. |
+| OpenZeppelin contracts | `https://github.com/OpenZeppelin/openzeppelin-contracts` | `932fddf69a699a9a80fd2396fd1a2ab91cdda123` | MIT (verified) | Nested dependency of Morpho Blue oracles | `lib/morpho-blue-oracles/lib/openzeppelin-contracts` | Nested pinned submodule | v5.0.0. Not a direct root dependency. Reaches the deployable oracle closure via `utils/math/Math.sol`. |
+| Solmate | `https://github.com/transmissions11/solmate` | `fadb2e2778adbf01c80275bfb99e5c14969d964b` | **AGPL-3.0 (verified)** | Nested dependency of Morpho Blue IRM | `lib/morpho-blue-irm/lib/solmate` | Nested pinned submodule | Test tooling only. NOT in any deployable import closure — verified, see [License Review](license-review.md) Finding 1. A `solmate/=` remapping exists; do not import through it from `src/`. |
+| ds-test | `https://github.com/dapphub/ds-test` | `e282159d5170298eb2455a6c05280ab5a73a4ef0`, `cd98eff28324bfac652e63a239a60632a761790b` | GPL-3.0 (verified) | Nested test dependency of forge-std and solmate | multiple nested paths | Nested pinned submodule | Test tooling only. Not in any deployable closure. |
+| halmos-cheatcodes | `https://github.com/a16z/halmos-cheatcodes` | `a02072cd5eb8560d00c3f4a73b27831ec6e3137e` | AGPL-3.0 (verified) | Nested formal-verification dependency of Morpho Blue | `lib/morpho-blue-irm/lib/morpho-blue/lib/halmos-cheatcodes` | Nested pinned submodule | Verification tooling only. Not in any deployable closure. |
+| erc4626-tests | `https://github.com/a16z/erc4626-tests` | `8b1d7c2ac248c33c3506b1bff8321758943c5e11` | AGPL-3.0 (verified) | Nested test dependency of OpenZeppelin contracts | `lib/morpho-blue-oracles/lib/openzeppelin-contracts/lib/erc4626-tests` | Nested pinned submodule | Test tooling only. Not in any deployable closure. |
 | Morpho vault/periphery references | TODO official repository | TODO | TODO | Future vault/curation reference only | TODO | Not imported | Owner: TODO protocol engineer. Action: decide whether MetaMorpho or another vault layer is in scope. Date: TODO before vault design. |
 | Morpho deployment references | TODO official repository | TODO | TODO | Reference only | TODO | Not imported | Owner: TODO deployment owner. Action: verify official deployment process before replacing placeholder scripts. Date: TODO before Shadownet deploy. |
 
@@ -77,10 +80,18 @@ pending review.
 
 ## Blocking TODOs
 
-- Owner: TODO legal reviewer. Action: confirm licenses for all direct and nested dependencies. Date: TODO before mainnet release.
+- ~~Owner: TODO legal reviewer. Action: confirm licenses for all direct and
+  nested dependencies.~~ Done for the technical half: every direct and nested
+  dependency license is verified at its pinned SHA in the table above. See
+  [License Review](license-review.md). Legal signoff remains outstanding.
 - Owner: TODO legal reviewer. Action: decide whether this repository keeps its
   `GPL-2.0-or-later OR BUSL-1.1` arm now that upstream Morpho Blue and Morpho
   Blue oracles are GPLv2-only, and update `LICENSE`/`NOTICE` accordingly. See
-  "Upstream BUSL-1.1 Removal (2026-07-27)". Date: TODO before mainnet release.
+  [License Review](license-review.md) Finding 2 for the options and the
+  affected files. Date: TODO before mainnet release.
+- Owner: TODO protocol engineer. Action: remove the `solmate/=` remapping or
+  add a CI guard preventing `src/` from importing through it. See
+  [License Review](license-review.md) Finding 3. Date: TODO before Shadownet
+  deployment.
 - Owner: TODO protocol engineer. Action: link or archive upstream audit reports where license permits. Date: TODO before external audit.
 - Owner: TODO deployment owner. Action: verify official deployment process against upstream Morpho references. Date: TODO before Shadownet deploy.
