@@ -15,6 +15,10 @@
 - Required price-source monitor failure for WXTZ/USDC.
 - Required DEX executable route failure or large route deviation.
 - USDC/USD depeg deviation across oracle, CEX, and indexer sources.
+- Unapproved market creation reusing our loan or collateral token. See
+  [Approved Market ID Whitelist](#approved-market-id-whitelist).
+- Owner-only Morpho call observed: `setOwner`, `enableIrm`, `enableLltv`,
+  `setFee`, or `setFeeRecipient`.
 
 ## Required Dashboards
 
@@ -28,6 +32,24 @@
 - Error rates for indexer/RPC.
 - NOC price-source table for XTZ/USD, USDC/USD, and WXTZ/USDC.
 - DEX route health, output amount, and deviation from the derived WXTZ/USDC reference.
+
+## Approved Market ID Whitelist
+
+Morpho Blue market creation is permissionless once an IRM and an LLTV are
+enabled, so third parties can create markets that reuse our loan or collateral
+token with a different oracle, IRM, or LLTV. We cannot prevent this. See
+[ADR 0003](adr/0003-first-launch-component-scope.md).
+
+Monitoring MUST therefore:
+
+- Pin the approved market ID and its full parameter tuple (loan token,
+  collateral token, oracle, IRM, LLTV) as the single source of truth.
+- Alert on any `CreateMarket` event whose loan or collateral token matches ours
+  but whose market ID does not.
+- Present the approved market ID prominently enough that dashboards and
+  incident responders cannot silently read the wrong market.
+- Treat an unapproved lookalike market as a user-safety and communications
+  event, not a protocol failure. We have no on-chain lever against it.
 
 ## Price Source Monitor
 

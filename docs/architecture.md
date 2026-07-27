@@ -44,6 +44,25 @@ Each market MUST define:
 
 Market creation MUST NOT proceed while token addresses, token decimals, oracle addresses/feed IDs, oracle decimals, IRM address, LLTV, and liquidation path remain placeholders.
 
+## Deployment Scope Freeze
+
+The deployable component list for the first launch is frozen in
+[ADR 0003](adr/0003-first-launch-component-scope.md). In summary, the first
+launch deploys the `Morpho` singleton, exactly one IRM (`AdaptiveCurveIrm`),
+exactly one oracle contract, and enables exactly one LLTV value. No vault,
+allocator, bundler, or rewards layer is deployed.
+
+Three constraints verified against the pinned Morpho Blue source shape the
+launch plan and are recorded here because they are easy to assume wrongly:
+
+- Market creation is permissionless once an IRM and an LLTV are enabled, so
+  third parties can create markets reusing our token pair with a different
+  oracle. Monitoring MUST whitelist our exact market ID.
+- There is no `disableIrm` or `disableLltv`. Every enable is permanent.
+- There is no pause function. Emergency response cannot stop the protocol.
+
+ADR 0003 carries the evidence and the full in-scope/out-of-scope list.
+
 ## Initial Launch Philosophy
 
 The initial launch SHOULD use one or very few markets. The first markets SHOULD use conservative assets only.
@@ -106,5 +125,10 @@ Each extension MUST have a separate design review and security review before pro
 - No production deployment in this repo-population task.
 - No protocol logic changes in this task.
 - No new oracle adapters without separate audit.
-- No permissionless production market creation until risk controls are designed.
+- No vault, allocator, bundler, or rewards layer in the first launch. See
+  [ADR 0003](adr/0003-first-launch-component-scope.md).
 - No claim that immutable contracts can be patched after deployment unless the specific deployed component is upgradeable.
+- No claim that we can prevent third parties from creating Morpho markets.
+  Market creation is permissionless once an IRM and LLTV are enabled; the
+  control available to us is which IRM/LLTV values exist and which market ID
+  we endorse and monitor.
