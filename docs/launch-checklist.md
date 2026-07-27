@@ -88,9 +88,14 @@ Baseline verification record: [Baseline Verification](baseline-verification.md).
 ## Oracle Readiness
 
 Feed-support evidence:
-[RedStone Etherlink Feed-Support Check](../config/oracles/redstone-etherlink-feed-support.md).
-Adapter supports XTZ/ETH/BTC only; USDC reverts. Signer threshold 2. The
-USDC/USD leg requires an on-chain Pyth contract.
+[RedStone Etherlink Feed-Support Check](../config/oracles/redstone-etherlink-feed-support.md)
+and [Pyth Etherlink Feed Verification](../config/oracles/pyth-etherlink-feed-verification.md).
+
+Current blocker: RedStone supports XTZ/ETH/BTC only and **reverts on USDC**
+(signer threshold 2, ~16s push cadence). Pyth **does** serve USDC/USD but its
+freshness is not maintained — a 162s-old price was observed against a 60s
+validity period, and the strict accessors revert. **Neither provider alone can
+price WXTZ/USDC today**; see the Phase 3C options in the Pyth document.
 
 - [ ] Oracle source selected.
 - [ ] Feed exists.
