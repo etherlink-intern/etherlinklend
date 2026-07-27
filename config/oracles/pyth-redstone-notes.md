@@ -1,5 +1,18 @@
 # Pyth / RedStone Planning Notes
 
+Both providers have now been verified on live Etherlink. These planning notes
+are superseded by the evidence documents where they conflict:
+
+- [RedStone Etherlink Feed-Support Check](redstone-etherlink-feed-support.md) —
+  XTZ/ETH/BTC supported, **USDC reverts**; signer threshold 2; push cadence
+  ~16s.
+- [Pyth Etherlink Feed Verification](pyth-etherlink-feed-verification.md) —
+  both feed IDs resolve and USDC/USD is served, but **freshness is not
+  maintained**: a 162-second-old price was observed against a 60-second
+  validity period, and the strict accessors reverted.
+
+Net result: neither provider alone can price WXTZ/USDC on Etherlink today.
+
 ## Pyth Notes
 
 - Pyth commonly uses a pull-based update model.
