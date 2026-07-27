@@ -57,6 +57,25 @@ Risk review MUST occur:
 - After oracle incidents.
 - After any high or critical incident.
 
+## Completed Asset Reviews
+
+| Asset | Role | Review | Status |
+|---|---|---|---|
+| WXTZ | Collateral candidate | [wxtz-due-diligence.md](wxtz-due-diligence.md) | Technical review complete; **not approved** pending risk-owner decisions |
+| USDC (bridged) | Loan asset candidate | [usdc-due-diligence.md](usdc-due-diligence.md) | Technical review complete; **not approved** pending risk-owner decisions |
+
+Cross-cutting findings from those reviews that bind the first market:
+
+- Executable WXTZ → USDC depth collapses between 30,000 and 40,000 WXTZ
+  (~$6,200–$8,300). Above that, slippage exceeds any plausible liquidation
+  incentive and the position cannot be cleared profitably. **This caps the
+  size of the entire first market.**
+- A single 2-of-3 Gnosis Safe is the trust root for *both* assets: it owns
+  WXTZ and owns the bridge that mints USDC. Isolated markets do not mitigate a
+  dependency shared inside one market.
+- The Etherlink "USDC" is bridge-minted, not Circle-native. No pause, no
+  blacklist, no cap on bridge minting.
+
 ## Blocking TODOs
 
 - Owner: TODO risk owner. Action: define first market candidates and reject list. Date: TODO before Shadownet market config.
