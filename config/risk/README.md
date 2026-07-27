@@ -63,6 +63,7 @@ Risk review MUST occur:
 |---|---|---|---|
 | WXTZ | Collateral candidate | [wxtz-due-diligence.md](wxtz-due-diligence.md) | Technical review complete; **not approved** pending risk-owner decisions |
 | USDC (bridged) | Loan asset candidate | [usdc-due-diligence.md](usdc-due-diligence.md) | Technical review complete; **not approved** pending risk-owner decisions |
+| WXTZ/USDC market | First market candidate | [wxtz-usdc-market-risk-memo.md](wxtz-usdc-market-risk-memo.md) | Parameter proposal; **awaiting risk-owner decision**. Draft config: [etherlink-mainnet-wxtz-usdc.json](../markets/etherlink-mainnet-wxtz-usdc.json) |
 
 Cross-cutting findings from those reviews that bind the first market:
 
@@ -75,6 +76,11 @@ Cross-cutting findings from those reviews that bind the first market:
   dependency shared inside one market.
 - The Etherlink "USDC" is bridge-minted, not Circle-native. No pause, no
   blacklist, no cap on bridge minting.
+- **Caps are not enforceable.** Morpho Blue core has no supply or borrow cap,
+  and ADR 0003 excludes the vault layer that would provide one. Every cap in
+  the market config is an advisory monitoring threshold; anyone can supply or
+  borrow past it. See Finding 0 in the market risk memo — the risk owner
+  should treat this as the primary launch decision, ahead of LLTV and caps.
 
 ## Blocking TODOs
 

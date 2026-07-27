@@ -1,0 +1,116 @@
+{
+  "status": "draft",
+  "productionApproved": false,
+  "chain": {
+    "name": "Etherlink Mainnet",
+    "chainId": 42793,
+    "chainIdVerified": true,
+    "chainIdVerificationNote": "eth_chainId returned 0xa729 (42793) at block ~49494673 on 2026-07-27."
+  },
+  "market": {
+    "name": "WXTZ/USDC Etherlink Mainnet First Market",
+    "purpose": "first-production-market-candidate",
+    "loanToken": "0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9",
+    "loanTokenSymbol": "USDC",
+    "loanTokenDecimals": 6,
+    "loanTokenNote": "Bridge-minted WrappedERC20, NOT Circle-native USDC. Mint/burn are onlyBridge against an immutable bridge at 0x1f8e735f424b7a49a885571a2fa104e8c13c26c7. No pause, no blacklist, no permit, no mint cap.",
+    "collateralToken": "0xc9B53AB2679f573e480d01e0f49e2B5CFB7a3EAb",
+    "collateralTokenSymbol": "WXTZ",
+    "collateralTokenDecimals": 18,
+    "collateralTokenNote": "LayerZero OFT and native XTZ wrapper. lzReceive mints locally. sharedDecimals 6, decimalConversionRate 1e12, setPeer behind a 48h TIMELOCK.",
+    "oracle": "0xTODO_PHASE_3",
+    "oracleType": "TODO_PHASE_3_REDSTONE_OR_PYTH_ADAPTER",
+    "oracleDecimals": null,
+    "oracleRequiredScale": "1e24",
+    "oracleScaleDerivation": "36 + loanDecimals(6) - collateralDecimals(18) = 24. At ~0.2069 USDC per WXTZ, price() must return approximately 2.069e23.",
+    "irm": "0xTODO_AFTER_DEPLOY",
+    "irmType": "AdaptiveCurveIrm",
+    "irmNote": "Frozen by ADR 0003 as the single in-scope IRM. Address recorded after deployment.",
+    "lltv": "625000000000000000",
+    "lltvHuman": "0.625",
+    "lltvStatus": "PROPOSED_NOT_APPROVED",
+    "lltvNote": "Proposed in config/risk/wxtz-usdc-market-risk-memo.md. Liquidation incentive at this LLTV is 12.68%. Enabling an LLTV is PERMANENT: Morpho has no disableLltv."
+  },
+  "risk": {
+    "productionApproved": false,
+    "riskOwner": "TODO",
+    "reviewedBy": [],
+    "capsEnforceable": false,
+    "capsEnforcementNote": "CRITICAL: Morpho Blue core has NO supply or borrow cap. Verified against the pinned source: supply() has no cap check and the string 'cap' does not appear in Morpho.sol. ADR 0003 excludes any MetaMorpho vault layer, so no on-chain cap mechanism exists in the frozen scope. Every cap below is an ADVISORY MONITORING THRESHOLD, not an enforced limit. Anyone can supply or borrow past these values and we cannot stop them.",
+    "advisoryInitialSupplyCap": "25000000000000000000000",
+    "advisoryInitialSupplyCapHuman": "25,000 WXTZ (~$5,175)",
+    "advisoryInitialBorrowCap": "3000000000",
+    "advisoryInitialBorrowCapHuman": "3,000 USDC",
+    "advisoryMaxSupplyCap": "30000000000000000000000",
+    "advisoryMaxSupplyCapHuman": "30,000 WXTZ, reachable only after the cap ratchet in the risk memo",
+    "hardStopSupply": "35000000000000000000000",
+    "hardStopSupplyHuman": "35,000 WXTZ. Beyond this no LLTV yields viable liquidation.",
+    "liquidationLiquidityNotes": "Measured on KyberSwap at block ~49494673 on 2026-07-27. Flat to ~25,000 WXTZ at 0.51% slippage; 30,000 WXTZ at 2.25%; 40,000 WXTZ at 21.06%; above 40,000 the absolute USDC output falls. Calm-market measurement; stressed conditions will be worse. One aggregator only - re-measure on a second router before approval.",
+    "knownAssetRisks": [
+      "Executable depth caps the entire market at low five figures USD. Liquidations above ~30,000 WXTZ are unprofitable at any LLTV and accrue bad debt.",
+      "A single 2-of-3 Gnosis Safe (0x90481dadc7163d984c4939691c113617fa27c383) owns WXTZ and owns the bridge that mints USDC. One trust root for both sides of this market. Isolated markets do not mitigate a dependency shared inside one market.",
+      "The USDC bridge has unlimited uncapped mint authority. setTrustedRemote shows no timelock, unlike WXTZ setPeer which has 48h.",
+      "WXTZ is a LayerZero OFT: lzReceive mints locally, so a compromised peer can mint WXTZ not backed by newly locked XTZ.",
+      "Neither token has a pause or blacklist, and Morpho has no pause. In an incident essentially nothing on-chain can be stopped.",
+      "Market creation and supply are permissionless. Third parties can create lookalike WXTZ/USDC markets with a different oracle, and can supply past the advisory caps.",
+      "Pyth USDC/USD prices Circle USDC, not this bridged wrapper. Using it assumes bridged-USDC equals Circle-USDC, which is exactly the assumption that fails during a bridge incident."
+    ]
+  },
+  "checks": {
+    "chainIdGuarded": true,
+    "chainIdVerified": true,
+    "tokenAddressesVerifiedOnChain": true,
+    "tokenDecimalsVerified": true,
+    "tokenBehaviorReviewed": true,
+    "tokenProvenanceCited": false,
+    "liquidityMeasured": true,
+    "liquidityReMeasuredSecondRouter": false,
+    "oracleSelected": false,
+    "oracleFeedVerified": false,
+    "oracleScaleTested": false,
+    "oracleStalenessTested": false,
+    "liquidationTested": false,
+    "forkTested": false,
+    "riskOwnerApproved": false,
+    "externalReviewComplete": false
+  },
+  "blockers": [
+    "Finding 0: caps are not enforceable on-chain in the frozen scope. Risk owner must decide: launch uncapped and monitor, add a vault layer via a new ADR, or delay.",
+    "LLTV 0.625 is proposed, not approved. Enabling it is permanent.",
+    "Oracle not selected. Phase 3 owns this. Required output scale is 1e24 for this decimal pair.",
+    "Both assets are recorded NOT APPROVED in their due-diligence files pending risk-owner decisions.",
+    "Provenance not cited for the WXTZ address, the USDC address, or the bridge.",
+    "Depth measured on one aggregator only.",
+    "No liquidation has been rehearsed on Shadownet.",
+    "Shared 2-of-3 multisig trust root not explicitly accepted in writing."
+  ],
+  "todos": [
+    {
+      "owner": "TODO risk owner",
+      "action": "Decide Finding 0 and record the decision in config/risk/wxtz-usdc-market-risk-memo.md.",
+      "date": "TODO before Shadownet market creation"
+    },
+    {
+      "owner": "TODO risk owner",
+      "action": "Approve or amend LLTV 0.625 and confirm exactly one LLTV will be enabled.",
+      "date": "TODO before Shadownet market creation"
+    },
+    {
+      "owner": "TODO oracle reviewer",
+      "action": "Select the oracle and prove the 1e24-scaled WXTZ/USDC output under fresh, stale, malformed, and deviation conditions.",
+      "date": "TODO Phase 3"
+    },
+    {
+      "owner": "TODO protocol engineer",
+      "action": "Re-measure executable depth on a second router and against direct pool reserves.",
+      "date": "TODO before market approval"
+    }
+  ],
+  "references": {
+    "collateralDueDiligence": "../risk/wxtz-due-diligence.md",
+    "loanAssetDueDiligence": "../risk/usdc-due-diligence.md",
+    "riskMemo": "../risk/wxtz-usdc-market-risk-memo.md",
+    "componentScope": "../../docs/adr/0003-first-launch-component-scope.md"
+  },
+  "notes": "DRAFT and NOT APPROVED FOR PRODUCTION. Token addresses, decimals, and chain ID are verified on-chain; oracle, IRM address, LLTV approval, and caps are not settled. Do not deploy or create this market from this file in its current state."
+}
