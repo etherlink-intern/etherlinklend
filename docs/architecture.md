@@ -24,7 +24,7 @@ Morpho Blue was selected as the preferred base architecture because:
 - The primitive is minimized and easier to reason about than a large pooled market.
 - Risk can be contained and reviewed per market.
 - A vault or curation layer MAY be added later without making pooled lending the first launch surface.
-- It fits a cautious Etherlink launch that starts with one or very few conservative markets.
+- It fits a cautious Etherlink launch that starts with exactly one conservative market.
 
 Upstream Morpho Blue maturity does not automatically make this deployment safe. The Etherlink Morpho deployment has its own fork/deployment risk, market-configuration risk, oracle risk, liquidation risk, and chain-specific risk.
 
@@ -65,7 +65,15 @@ ADR 0003 carries the evidence and the full in-scope/out-of-scope list.
 
 ## Initial Launch Philosophy
 
-The initial launch SHOULD use one or very few markets. The first markets SHOULD use conservative assets only.
+The initial launch MUST use **exactly one** endorsed market, per
+[ADR 0003](adr/0003-first-launch-component-scope.md). A second market is out of
+first-launch scope and requires the Phase 10 next-market review. The first
+market MUST use conservative assets only.
+
+(This supersedes the earlier "one or very few markets" phrasing. Because
+enabling an IRM or LLTV is permanent and market creation is permissionless,
+"very few" is not a scope a release owner can hold — only the count of markets
+we endorse, monitor, and support is under our control.)
 
 Initial markets SHOULD prefer:
 

@@ -98,9 +98,30 @@ and is essentially fixed regardless of the LLTV we pick.
 
 Rationale:
 
-1. **Volatility buffer.** XTZ is a volatile asset against a dollar-denominated
-   loan. A 37.5% buffer is appropriate for a first market on a new chain with
-   an unproven liquidation path.
+1. **Volatility buffer — asserted, not yet measured.** XTZ is a volatile asset
+   against a dollar-denominated loan, and a 37.5% buffer is *proposed* as
+   appropriate for a first market on a new chain with an unproven liquidation
+   path. **This is currently a judgement call, not evidence.** No XTZ drawdown
+   study, oracle-update interval, or liquidation-latency estimate exists in
+   this repository, and `config/markets/README.md` requires volatility review.
+
+   The buffer that actually matters is the price move possible within the
+   **stress window** — the time from the last oracle update until a liquidator
+   clears the position:
+
+   ```
+   stress window ≈ oracle staleness bound + liquidation detection + inclusion time
+   ```
+
+   With the RedStone cadence measured at ~16s (see the feed-support check) the
+   oracle leg is small, but detection and inclusion are unmeasured, and the
+   sequential-slice problem above can stretch clearing time considerably.
+
+   **Required before the risk owner can approve this LLTV:** a defined stress
+   window and a measured or conservatively-assumed XTZ price shock over that
+   window, showing the buffer survives it. Until that exists, 0.625 is a
+   defensible starting proposal but is not the checkable recommendation the
+   rest of this memo aims for.
 2. **Best liquidator incentive available at a sane LLTV.** 12.68% gives the
    widest margin over slippage, which matters most precisely when it is worst
    — in stressed conditions, where the calm-market curve above understates
@@ -142,12 +163,24 @@ Notes for the risk owner:
 
 Derived from the measured <1% slippage band, not from a target market size.
 
-| Parameter | Proposed | Basis |
-|---|---:|---|
-| Advisory initial supply cap | **25,000 WXTZ** (~$5,175) | Full-market unwind stays inside 0.51% slippage |
-| Advisory initial borrow cap | **3,000 USDC** | 25,000 × $0.207 × 0.625 ≈ $3,234 max borrowable; rounded down |
-| Advisory maximum supply cap | **30,000 WXTZ** | Last size before the cliff; requires re-measured depth to reach |
-| Hard stop | **35,000 WXTZ** | Beyond this, no LLTV yields viable liquidation |
+The WXTZ figures are **collateral** exposure — the sum of position collateral
+entering via `supplyCollateral()`. They are deliberately not called "supply"
+caps: Morpho's `supply()` supplies the **loan** asset (USDC, 6 dp), so a
+monitor comparing an 18-decimal WXTZ figure against loan-supply accounting
+would never fire.
+
+| Parameter | Proposed | Monitored quantity | Basis |
+|---|---:|---|---|
+| Advisory initial collateral cap | **25,000 WXTZ** (~$5,173) | total market collateral | Full-market unwind stays inside 0.51% slippage |
+| Advisory initial borrow cap | **3,000 USDC** | `totalBorrowAssets` | 25,000 × $0.2069 × 0.625 ≈ $3,233 max borrowable; rounded down |
+| Advisory maximum collateral cap | **30,000 WXTZ** | total market collateral | Last **measured** size before the cliff; requires re-measured depth to reach |
+| Hard stop | **35,000 WXTZ** | total market collateral | Conservative stop inside the unmeasured 30k–40k band |
+
+**Measurement gap.** Nothing was sampled between 30,000 and 40,000 WXTZ. What
+is established is that 30,000 is viable (2.25% slippage vs a 12.68% incentive)
+and 40,000 is not (21.06%). The 35,000 hard stop is a conservative choice
+*within* that gap, not a measured boundary. Do not restate it as "above 35,000
+is unprofitable" — that is not what the data shows.
 
 Enforcement, stated plainly: **none of these are enforced on-chain.** They are
 enforced by (a) us being the only intended supplier at launch, (b) monitoring
@@ -192,7 +225,11 @@ the answer is checkable rather than a matter of judgment.
 
 ### Approve only if all of the following hold
 
-- All four blocking items in each asset due-diligence file are closed.
+- **Every** blocking item in each asset due-diligence file is closed. There are
+  currently four in the WXTZ file and **five** in the USDC file — the fifth
+  being the unconfirmed bound on `setWithdrawalFeeBps`, which matters because
+  it affects liquidators who must bridge proceeds out. Count them at review
+  time rather than relying on a number quoted here.
 - Provenance cited for the WXTZ address, the USDC address, and the bridge.
 - Depth re-measured on two routers plus pool reserves, within the ratchet
   criteria above.

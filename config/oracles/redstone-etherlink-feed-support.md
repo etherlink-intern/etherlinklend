@@ -62,8 +62,16 @@ return a value; unsupported symbols **revert**:
 The `NOPE` control confirms the revert is genuine feed rejection behaviour and
 not an artifact of the call encoding.
 
-**Conclusion: RedStone on Etherlink cannot supply a USDC/USD price.** The
-claim carried from #2 is confirmed exactly.
+**Conclusion, stated precisely: the RedStone adapter currently deployed on
+Etherlink (`0xa2cca359...`) does not expose USDC/USD at the sampled block.**
+The claim carried from #2 is confirmed for the deployed path.
+
+This is **not** proof that RedStone's off-chain data service cannot supply
+USDC to a different adapter. A custom or self-operated adapter with a
+different feed set may be possible; `redstone-rpc-feed-plan.md` treats that
+path as blocked pending review rather than impossible, and this check does not
+change that. What is ruled out is using the **existing shared feed** for the
+USDC leg — which is what the market design was implicitly assuming.
 
 ## Feed Parameters
 
@@ -81,10 +89,16 @@ signer threshold, adapter/feed address, and update conditions documented"):
 | Adapter `owner()` | **reverts** — no Ownable owner exposed | upgrade/admin path not established by this check |
 
 Two of those remain open and are recorded as blocking TODOs below: the
-data-service ID and the adapter's admin/upgrade authority. A signer threshold
-of **2** should be reviewed on its own merits by the risk owner — it is the
-number of independent signers required to move the price this market would
-liquidate against.
+data-service ID and the adapter's admin/upgrade authority.
+
+**On the threshold of 2 — do not read it as "2 independent parties".**
+`getUniqueSignersThreshold()` establishes only that two *distinct authorised
+signer addresses* are required. It says nothing about who holds those keys or
+whether they are operated independently. Since the signer set and the
+data-service ID are both unknown here, the decentralisation this implies is
+unestablished: two addresses could belong to one operator. The risk owner
+should treat "threshold 2" as the on-chain fact and defer any independence
+judgement until the signer operators are identified.
 
 ## Measured Update Cadence
 
@@ -138,15 +152,52 @@ One exists on Etherlink mainnet:
 | XTZ/USD (`0x0affd4b8...`) | `0.20779388`, published 38s before the read |
 | **USDC/USD (`0xeaa020c6...`)** | **`0.99986350`**, published 38s before the read |
 
-Both feeds are being actively pushed on-chain and were fresh at the time of
-the check. This makes a Morpho-compatible WXTZ/USDC oracle **feasible**:
+Both feeds returned fresh values at the time of the check. That makes a
+Morpho-compatible WXTZ/USDC oracle **arithmetically constructible** — but see
+the two asset-identity caveats below before treating it as a solution, and see
+[the Pyth verification](pyth-etherlink-feed-verification.md) for why the
+freshness observed here did not hold.
 
 ```
-WXTZ/USDC  =  XTZ/USD  ÷  USDC/USD
+WXTZ/USDC  ≈  XTZ/USD  ÷  USDC/USD
               ^RedStone or Pyth   ^Pyth only
 ```
 
-Two operational risks follow directly and must be carried into Phase 3C:
+The `≈` is doing real work in that formula, on **both** legs:
+
+- **Numerator.** `XTZ/USD` is not `WXTZ/USD`. It is only equal while WXTZ
+  tracks XTZ 1:1, and Finding 1 of the
+  [WXTZ due diligence](../risk/wxtz-due-diligence.md) shows that assumption has
+  a failure mode: a compromised LayerZero peer can mint WXTZ that is not backed
+  by newly locked XTZ, and the backing pool can be drained. In that state this
+  formula **overvalues the collateral** — during exactly the incident when
+  accurate collateral valuation matters. The oracle design MUST require
+  validation and monitoring of the wrapper's backing ratio, not assume 1:1.
+- **Denominator.** `USDC/USD` from Pyth prices **Circle USDC**, while the loan
+  token is a bridge-minted wrapper. See the caveat below.
+
+**Asset-identity caveat: this does not solve the USDC fallback problem.** Feed
+`0xeaa020c6...` prices Circle-issued USDC. The market's loan token is the
+Etherlink bridge-minted wrapper, which can depeg from Circle USDC on bridge
+risk alone while this feed sits at ~$1.00. Dividing by it therefore still
+embeds the assumption "bridged-USDC = Circle-USDC", and would misquote WXTZ in
+units of the actual loan asset precisely during a bridge incident. Having a
+live feed removes the *hardcoded constant*, not the *basis risk*. Phase 3C must
+carry that assumption explicitly with monitoring and a response policy rather
+than treating the fallback question as closed.
+
+**Provenance caveat: this contract is not verified as an official Pyth
+receiver.** Everything above comes from on-chain probing. A successful
+`getPriceUnsafe` call and plausible values establish that the contract exposes
+the Pyth interface and returns sensible numbers — not that it is the canonical
+Pyth deployment. Any contract can expose that interface. This repository's own
+oracle requirements call for feed addresses to be verified from official
+documentation, and that has not been done for `0x2880aB15...`. Using an
+unverified receiver would place borrow and liquidation pricing under unknown
+control. Verify from official Pyth or Etherlink sources before Phase 3C relies
+on it.
+
+Two further operational risks follow directly and must be carried into Phase 3C:
 
 1. **The 60-second validity window is tight.** The observed publish age was
    38s against a 60s window. The strict `getPrice()` variant reverts outside
@@ -202,6 +253,7 @@ RPC=https://node.mainnet.etherlink.com
 FEED=0xe92c00BC72dD12e26E61212c04E8D93aa09624F2
 ADAPTER=0xa2cca359c43839040cf3d230deb1689ab8db2dac
 PYTH=0x2880aB155794e7179c9eE2e38200202908C17B43
+BLK=0x2f33ea7   # 49,495,719 - the block this check was archived at
 
 # chain id -> 0xa729 (42793)
 curl -s -X POST $RPC -H 'Content-Type: application/json' \
@@ -210,30 +262,30 @@ curl -s -X POST $RPC -H 'Content-Type: application/json' \
 # feed -> adapter.  getPriceFeedAdapter() = 0x47043b00
 # -> 0x...a2cca359c43839040cf3d230deb1689ab8db2dac
 curl -s -X POST $RPC -H 'Content-Type: application/json' \
-  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"$FEED\",\"data\":\"0x47043b00\"},\"latest\"]}"
+  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"$FEED\",\"data\":\"0x47043b00\"},\"$BLK\"]}"
 
 # supported feed ids.  getDataFeedIds() = 0xfba03158
 # -> offset 0x20, length 0x03, then 58545a.. (XTZ), 455448.. (ETH), 425443.. (BTC)
 curl -s -X POST $RPC -H 'Content-Type: application/json' \
-  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"$ADAPTER\",\"data\":\"0xfba03158\"},\"latest\"]}"
+  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"$ADAPTER\",\"data\":\"0xfba03158\"},\"$BLK\"]}"
 
 # signer threshold.  getUniqueSignersThreshold() = 0xf90c4924  -> 0x..02
 curl -s -X POST $RPC -H 'Content-Type: application/json' \
-  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"$ADAPTER\",\"data\":\"0xf90c4924\"},\"latest\"]}"
+  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"$ADAPTER\",\"data\":\"0xf90c4924\"},\"$BLK\"]}"
 
 # supported symbol.  getValueForDataFeed(bytes32) = 0x44e02982
 # arg = bytes32("XTZ") right-padded -> returns a value
 curl -s -X POST $RPC -H 'Content-Type: application/json' \
-  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"$ADAPTER\",\"data\":\"0x44e0298258545a0000000000000000000000000000000000000000000000000000000000\"},\"latest\"]}"
+  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"$ADAPTER\",\"data\":\"0x44e0298258545a0000000000000000000000000000000000000000000000000000000000\"},\"$BLK\"]}"
 
 # USDC rejection: same selector, bytes32("USDC")
 curl -s -X POST $RPC -H 'Content-Type: application/json' \
-  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"$ADAPTER\",\"data\":\"0x44e029825553444300000000000000000000000000000000000000000000000000000000\"},\"latest\"]}"
+  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"$ADAPTER\",\"data\":\"0x44e029825553444300000000000000000000000000000000000000000000000000000000\"},\"$BLK\"]}"
 # -> {"error":{"code":-32003,"message":"execution reverted"}}
 
 # Pyth USDC/USD on-chain.  getPriceUnsafe(bytes32) = 0x96834ad3
 curl -s -X POST $RPC -H 'Content-Type: application/json' \
-  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"$PYTH\",\"data\":\"0x96834ad3eaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a\"},\"latest\"]}"
+  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"$PYTH\",\"data\":\"0x96834ad3eaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a\"},\"$BLK\"]}"
 ```
 
 Selectors were computed with keccak-256 over the canonical signature and

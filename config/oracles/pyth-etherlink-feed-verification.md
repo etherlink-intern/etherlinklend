@@ -125,10 +125,14 @@ Not a rejection of Pyth — a statement of what production use requires:
    a plain `view` call, so it would require periphery not in the ADR 0003
    scope.
 3. **Or find another USDC/USD source** on Etherlink.
-4. **Or accept a documented USDC = 1.00 assumption** with depeg monitoring and
-   a borrow-pause policy. The repository has so far explicitly refused this,
-   and `etherlink-price-sources.json` states no hardcoded USDC = 1 source is
+4. **Or accept a documented USDC = 1.00 assumption** with depeg monitoring.
+   The repository has so far explicitly refused this, and
+   `etherlink-price-sources.json` states no hardcoded USDC = 1 source is
    configured. Reopening it is a risk-owner decision, not a default.
+
+   Note there is **no borrow-pause to pair with it**: Morpho has no pause and
+   caps are unenforceable, so monitoring here means detection and
+   communication, not containment.
 
 Option 1 is the only one that fits the frozen scope without new contracts.
 Its cost, ownership, and funding are unresolved.
@@ -169,19 +173,35 @@ the USDC leg, and Pyth lacks maintained freshness.
 The oracle design cannot be settled by choosing a provider, because no
 provider is currently sufficient. The realistic paths:
 
-- **A. RedStone XTZ/USD + operated Pyth pusher for USDC/USD.** Best data
-  quality, adds a funded operational dependency we own.
-- **B. RedStone XTZ/USD + documented USDC = 1.00 with depeg monitoring and a
-  borrow-pause policy.** Cheapest, reverses a standing repository position, and
-  is least defensible if bridged USDC depegs — which the
-  [USDC due diligence](../risk/usdc-due-diligence.md) shows is a live risk
-  given the bridge's uncapped mint authority.
+- **A. RedStone XTZ/USD + operated Pyth pusher for USDC/USD.** Best *freshness*
+  and the only path that keeps a live USDC signal. **It does not solve asset
+  identity.** Feed `0xeaa020c6...` prices Circle USDC, while the loan token is
+  the bridge-minted wrapper; per the
+  [USDC due diligence](../risk/usdc-due-diligence.md), a bridge incident can
+  depeg the wrapper while this feed stays at ~$1.00. Path A fixes *when* the
+  price arrives, not *what it prices*. Choosing A therefore still requires the
+  bridged-USDC basis risk to be recorded as an explicit market assumption with
+  monitoring and a response policy — it is not a complete solution, and the
+  pusher must not be treated as one.
+- **B. RedStone XTZ/USD + documented USDC = 1.00 with depeg monitoring.**
+  Cheapest, reverses a standing repository position, and is least defensible if
+  bridged USDC depegs — a live risk given the bridge's uncapped mint authority.
+
+  **B has no containment mechanism.** An earlier draft of this document paired
+  B with a "borrow-pause policy". No such lever exists:
+  [ADR 0003](../../docs/adr/0003-first-launch-component-scope.md) confirms
+  Morpho has no pause or freeze, and caps are not enforceable. During the exact
+  depeg B is exposed to, frontend delisting and off-chain policy would not stop
+  anyone calling `borrow` directly. B must therefore be described as **lacking
+  containment**, or paired with an enforceable mechanism that does not exist in
+  the frozen scope.
 - **C. Delay the market** until a maintained USDC/USD source exists on
   Etherlink.
 
-Engineering recommends A or C over B, and notes that A's pusher can be
-rehearsed on Shadownet only after Pyth parity there is resolved — the Shadownet
-Pyth contract differs in size from mainnet.
+Engineering recommends A or C over B. Note that **A and B share the
+bridged-USDC basis risk** — A is better on freshness, not on asset identity —
+and that A's pusher can be rehearsed on Shadownet only after Pyth parity there
+is resolved, since the Shadownet Pyth contract differs in size from mainnet.
 
 ## Verification
 
@@ -211,10 +231,53 @@ curl -s -X POST $RPC -H 'Content-Type: application/json' \
 date +%s
 ```
 
-Decode `getPriceUnsafe` as four 32-byte words: `int64 price`, `uint64 conf`,
-`int32 expo`, `uint publishTime`. The observed payload decoded to
-price `20774273`, conf `32230`, expo `-8`, publishTime `1785183834`, against a
-wall clock of `1785183996` — an age of **162 s**.
+### Recorded evidence for the staleness claim
+
+A staleness observation is time-dependent by nature: re-running these calls
+against `latest` will evaluate whatever the feed state is *then*, and cannot
+reproduce the 162-second reading. The raw payload is therefore recorded here so
+a reviewer can replay the decode rather than the call.
+
+`getPriceUnsafe(0x0affd4b8…)` returned, verbatim:
+
+```
+0x00000000000000000000000000000000000000000000000000000000013cfd81
+  0000000000000000000000000000000000000000000000000000000000007de6
+  fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8
+  000000000000000000000000000000000000000000000000000000006a67be5a
+```
+
+Decoded as four 32-byte words — `int64 price`, `uint64 conf`, `int32 expo`,
+`uint publishTime`:
+
+| Word | Raw | Decoded |
+|---|---|---|
+| price | `0x013cfd81` | `20774273` → 0.20774273 |
+| conf | `0x7de6` | `32230` → ±0.00032230 (~15.5 bps) |
+| expo | `0xff…f8` | `-8` |
+| publishTime | `0x6a67be5a` | `1785183834` |
+
+Wall clock at the read: `1785183996`. **Age = 162 s** against a 60-second
+`getValidTimePeriod()`. `getPrice(bytes32)` with the verified selector
+`0x31d98b3f` returned `{"error":{"code":-32003,"message":"execution reverted"}}`
+at that moment, consistent with the decoded age.
+
+**Coverage of the claim, stated honestly.** The decisive claim covers two
+accessors and two feeds. What was actually executed:
+
+| Call | XTZ/USD | USDC/USD |
+|---|---|---|
+| `getPriceUnsafe` | executed, payload above | executed earlier (0.99986350, 38s old) |
+| `getPrice` | executed, reverted | executed, reverted |
+| `getPriceNoOlderThan(30s)` | executed, reverted | executed, reverted |
+| `getPriceNoOlderThan(5s)` | executed, reverted | executed, reverted |
+
+The `getPrice`/`getPriceNoOlderThan` reverts for both feeds came from a single
+batched call; only the XTZ/USD raw payload was captured verbatim. The block
+number at the moment of the stale read was **not** recorded — a gap in this
+evidence. Any future staleness check MUST capture `eth_blockNumber` alongside
+the payload so the observation is anchored, and this omission is recorded as a
+blocking TODO.
 
 Selectors used, computed with keccak-256 over the canonical signature and
 self-tested against published values before use:
@@ -248,3 +311,16 @@ a revert alone.
   approval.
 - Owner: TODO protocol engineer. Action: verify `getEmaPriceUnsafe` and the
   `getUpdateFee` path, neither confirmed here. Date: TODO Phase 3C.
+- Owner: TODO oracle reviewer. Action: verify `0x2880aB15...` is the official
+  Pyth receiver from Pyth or Etherlink documentation. On-chain probing shows
+  only that the contract exposes the Pyth interface and returns plausible
+  values; any contract can do that. Date: TODO before any production
+  dependency on Pyth.
+- Owner: TODO oracle reviewer. Action: record the bridged-USDC basis risk as an
+  explicit market assumption with monitoring and response policy, under
+  whichever of paths A/B is chosen. It is **not** removed by path A. Date: TODO
+  Phase 3C.
+- Owner: TODO protocol engineer. Action: re-run the staleness check capturing
+  `eth_blockNumber` and the raw payload for **both** feeds and **both** strict
+  accessors; the archived evidence here anchors only the XTZ/USD payload and
+  records no block number. Date: TODO Phase 3C.

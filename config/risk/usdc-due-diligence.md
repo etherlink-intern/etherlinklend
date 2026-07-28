@@ -168,6 +168,23 @@ Relevant to USDC specifically:
   makes that stricter: a *bridged* USDC can depeg from Circle USDC on bridge
   risk alone, independent of Circle's reserves. The peg being monitored is
   "bridged-USDC vs USD", not "Circle-USDC vs USD".
+
+- **The current source configuration cannot detect a bridge-only depeg, and
+  must be changed.** In `etherlink-price-sources.json` the two USDC/USD sources
+  marked `"required": true` are Pyth (`pyth-usdc-usd-hermes`) and Binance
+  (`binance-usdc-usdt`). **Both price Circle USDC**, which would sit at ~$1.00
+  throughout a failure of *this* bridge. The only two sources keyed to this
+  contract address — `coingecko-usdc-usd` and `blockscout-usdc-usd` — are
+  `"required": false`, and the reference policy takes a **median** across
+  sources, so even when they are enabled a lone local depeg signal is
+  outvoted by the two Circle-priced sources and masked.
+
+  Required change before approval: at least one source keyed to
+  `0x796Ea11F...` must be `"required": true`, and its deviation from the
+  Circle-USDC reference must be evaluated **directly** as its own alert
+  condition rather than only folded into the median. Refusing a hardcoded
+  1.00 is necessary but not sufficient; monitoring the wrong asset is a
+  different failure with the same outcome.
 - Bridge outflow capacity is part of liquidation economics for any liquidator
   who does not want to hold Etherlink-bridged USDC. Not measured here.
 
@@ -181,7 +198,10 @@ Phase 3 owns oracle selection. Constraints this asset imposes:
   bridge incident, i.e. precisely when the oracle matters most.
 - This does not make the feed unusable — there may be no better option — but
   the assumption MUST be recorded explicitly as a market risk with a
-  monitoring and pause policy attached, not left implicit.
+  monitoring and a response policy attached, not left implicit. Note the
+  response cannot include pausing anything: as recorded above, neither token
+  nor Morpho has a pause, so "policy" here means detection, frontend
+  delisting, and communication.
 - Confirmed at review time: Pyth XTZ/USD returned `0.20726316` and the
   on-chain RedStone XTZ/USD feed returned `0.20736041`, 4 seconds fresh,
   8 decimals. Both agree with the executable DEX price within 0.2%.
@@ -209,9 +229,16 @@ Suggested parameters, provisional:
 
 - Suggested supply/borrow caps: bounded by WXTZ liquidation depth, not by
   USDC. See the WXTZ file, Finding 3.
-- Required mitigations: live bridged-USDC peg monitoring; alerting on bridge
-  `OwnershipTransferred`, `SetTrustedRemote`, and large `mint` events;
-  duplicate-market monitoring per ADR 0003.
+- Required mitigations: live bridged-USDC peg monitoring (see below); alerting
+  on bridge `OwnershipTransferred` and `SetTrustedRemote`; duplicate-market
+  monitoring per ADR 0003.
+- **Mint alerting must watch `Transfer` from the zero address, not a `mint`
+  event.** This token's ABI emits only `Transfer` and `Approval` — there is no
+  `Mint` event, because `_mint` emits `Transfer(address(0), to, amount)`. A
+  monitor configured for a `mint` event would never fire, leaving the
+  unlimited-mint scenario this mitigation exists to catch completely
+  invisible. Alert on `Transfer` where `from == address(0)`, with an amount or
+  cumulative-volume threshold.
 
 ## Verification
 
