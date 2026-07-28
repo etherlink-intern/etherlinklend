@@ -169,22 +169,37 @@ Relevant to USDC specifically:
   risk alone, independent of Circle's reserves. The peg being monitored is
   "bridged-USDC vs USD", not "Circle-USDC vs USD".
 
-- **The current source configuration cannot detect a bridge-only depeg, and
-  must be changed.** In `etherlink-price-sources.json` the two USDC/USD sources
-  marked `"required": true` are Pyth (`pyth-usdc-usd-hermes`) and Binance
-  (`binance-usdc-usdt`). **Both price Circle USDC**, which would sit at ~$1.00
-  throughout a failure of *this* bridge. The only two sources keyed to this
-  contract address — `coingecko-usdc-usd` and `blockscout-usdc-usd` — are
-  `"required": false`, and the reference policy takes a **median** across
-  sources, so even when they are enabled a lone local depeg signal is
-  outvoted by the two Circle-priced sources and masked.
+- **Deviation detection already works — the gap is availability, not
+  masking.** An earlier version of this file claimed the median would mask a
+  lone bridged-USDC depeg. That is wrong, and checking
+  `tools/oracle-monitor/server.mjs` disproves it:
+  `attachDeviationFields()` compares **every** enabled source against the pair
+  reference and sets `severity = "critical"` once `absDeviationBps` reaches
+  `criticalDeviationBps` (250 bps in config), and `snapshotStatus()` returns
+  `alert` if **any** row is critical. That path does not consult `required` at
+  all. So an enabled contract-keyed source showing a bridge depeg is exactly
+  the case the monitor flags — a lone divergent source is what deviation-from-
+  median detects best.
 
-  Required change before approval: at least one source keyed to
-  `0x796Ea11F...` must be `"required": true`, and its deviation from the
-  Circle-USDC reference must be evaluated **directly** as its own alert
-  condition rather than only folded into the median. Refusing a hardcoded
-  1.00 is necessary but not sufficient; monitoring the wrong asset is a
-  different failure with the same outcome.
+  The `required` flag is used in one place only
+  (`snapshotStatus`: `row.required && row.status !== "ok"` → `degraded`), so it
+  governs **unavailable or stale** sources, not deviation.
+
+  The real gaps, stated accurately:
+
+  1. Both sources keyed to `0x796Ea11F...` — `coingecko-usdc-usd` and
+     `blockscout-usdc-usd` — are `"required": false`. If both go stale or
+     unavailable, the snapshot does **not** become `degraded`, so the only
+     bridged-asset signal can disappear silently while the remaining
+     Circle-priced sources keep the snapshot green. Make at least one of them
+     `"required": true` so its absence is surfaced.
+  2. A depeg smaller than `criticalDeviationBps` (250 bps) raises only `watch`
+     at 100 bps or nothing below that. Whether 2.5% is the right alert
+     threshold for the loan asset of this market is a risk-owner decision.
+
+  Refusing a hardcoded 1.00 remains necessary but not sufficient: the residual
+  risk is that the bridged-asset signal is optional and can vanish unnoticed,
+  not that it would be outvoted when present.
 - Bridge outflow capacity is part of liquidation economics for any liquidator
   who does not want to hold Etherlink-bridged USDC. Not measured here.
 

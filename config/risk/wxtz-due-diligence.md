@@ -91,10 +91,23 @@ Consequences:
    so nothing is lost on the conversion between chains."*
 
    This does **not** affect local Morpho supply/borrow/repay/withdraw, which
-   use full 18-decimal transfers. It is still worth a Phase 5 test, but the
-   invariant to assert is *sender balance is preserved to within one dust
-   unit*, **not** *value is destroyed*. Specifying it the wrong way round would
-   produce a test that fails against correct behaviour.
+   use full 18-decimal transfers.
+
+   It is still worth a Phase 5 test, and the invariant must be stated
+   precisely. For a requested cross-chain send of `requested`:
+
+   ```
+   amountSentLD = (requested / 1e12) * 1e12          // integer division
+   balance_before - balance_after == amountSentLD    // the debit
+   requested - amountSentLD < 1e12                   // the un-debited remainder
+   ```
+
+   The sender's balance **does** fall by `amountSentLD`, which is nearly the
+   whole transfer — what stays behind is only the sub-`1e12` remainder. Two
+   wrong phrasings both produce tests that fail against correct behaviour:
+   *"value is destroyed"* (it is not), and *"the balance is preserved to within
+   one dust unit"* (it is not — that would only hold for sends smaller than one
+   dust unit). Assert the two lines above.
 
 ### Backing observed
 
