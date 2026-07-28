@@ -168,6 +168,38 @@ Relevant to USDC specifically:
   makes that stricter: a *bridged* USDC can depeg from Circle USDC on bridge
   risk alone, independent of Circle's reserves. The peg being monitored is
   "bridged-USDC vs USD", not "Circle-USDC vs USD".
+
+- **Deviation detection already works — the gap is availability, not
+  masking.** An earlier version of this file claimed the median would mask a
+  lone bridged-USDC depeg. That is wrong, and checking
+  `tools/oracle-monitor/server.mjs` disproves it:
+  `attachDeviationFields()` compares **every** enabled source against the pair
+  reference and sets `severity = "critical"` once `absDeviationBps` reaches
+  `criticalDeviationBps` (250 bps in config), and `snapshotStatus()` returns
+  `alert` if **any** row is critical. That path does not consult `required` at
+  all. So an enabled contract-keyed source showing a bridge depeg is exactly
+  the case the monitor flags — a lone divergent source is what deviation-from-
+  median detects best.
+
+  The `required` flag is used in one place only
+  (`snapshotStatus`: `row.required && row.status !== "ok"` → `degraded`), so it
+  governs **unavailable or stale** sources, not deviation.
+
+  The real gaps, stated accurately:
+
+  1. Both sources keyed to `0x796Ea11F...` — `coingecko-usdc-usd` and
+     `blockscout-usdc-usd` — are `"required": false`. If both go stale or
+     unavailable, the snapshot does **not** become `degraded`, so the only
+     bridged-asset signal can disappear silently while the remaining
+     Circle-priced sources keep the snapshot green. Make at least one of them
+     `"required": true` so its absence is surfaced.
+  2. A depeg smaller than `criticalDeviationBps` (250 bps) raises only `watch`
+     at 100 bps or nothing below that. Whether 2.5% is the right alert
+     threshold for the loan asset of this market is a risk-owner decision.
+
+  Refusing a hardcoded 1.00 remains necessary but not sufficient: the residual
+  risk is that the bridged-asset signal is optional and can vanish unnoticed,
+  not that it would be outvoted when present.
 - Bridge outflow capacity is part of liquidation economics for any liquidator
   who does not want to hold Etherlink-bridged USDC. Not measured here.
 
@@ -181,7 +213,10 @@ Phase 3 owns oracle selection. Constraints this asset imposes:
   bridge incident, i.e. precisely when the oracle matters most.
 - This does not make the feed unusable — there may be no better option — but
   the assumption MUST be recorded explicitly as a market risk with a
-  monitoring and pause policy attached, not left implicit.
+  monitoring and a response policy attached, not left implicit. Note the
+  response cannot include pausing anything: as recorded above, neither token
+  nor Morpho has a pause, so "policy" here means detection, frontend
+  delisting, and communication.
 - Confirmed at review time: Pyth XTZ/USD returned `0.20726316` and the
   on-chain RedStone XTZ/USD feed returned `0.20736041`, 4 seconds fresh,
   8 decimals. Both agree with the executable DEX price within 0.2%.
@@ -209,9 +244,16 @@ Suggested parameters, provisional:
 
 - Suggested supply/borrow caps: bounded by WXTZ liquidation depth, not by
   USDC. See the WXTZ file, Finding 3.
-- Required mitigations: live bridged-USDC peg monitoring; alerting on bridge
-  `OwnershipTransferred`, `SetTrustedRemote`, and large `mint` events;
-  duplicate-market monitoring per ADR 0003.
+- Required mitigations: live bridged-USDC peg monitoring (see below); alerting
+  on bridge `OwnershipTransferred` and `SetTrustedRemote`; duplicate-market
+  monitoring per ADR 0003.
+- **Mint alerting must watch `Transfer` from the zero address, not a `mint`
+  event.** This token's ABI emits only `Transfer` and `Approval` — there is no
+  `Mint` event, because `_mint` emits `Transfer(address(0), to, amount)`. A
+  monitor configured for a `mint` event would never fire, leaving the
+  unlimited-mint scenario this mitigation exists to catch completely
+  invisible. Alert on `Transfer` where `from == address(0)`, with an amount or
+  cumulative-volume threshold.
 
 ## Verification
 

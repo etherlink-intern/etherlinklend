@@ -8,17 +8,30 @@ engineering to make legal review cheap. It is **not** legal advice and does
 **not** constitute the legal review required by `docs/launch-checklist.md`.
 
 Review date: 2026-07-27. Repository state: `docs/upstream.md` pins as of that
-date. Any pin change invalidates this review and requires a re-run.
+date. **Any pin change, or any change to the selected deployable components
+(notably the Phase 3 oracle selection), invalidates this review and requires a
+re-run.**
 
 ## Scope Of This Review
 
 In scope:
 
-- License of every direct and nested submodule at its pinned SHA.
-- Which licenses actually reach a deployable artifact, based on the frozen
+- License of every direct and nested **Solidity submodule** at its pinned SHA.
+- Which licenses actually reach a deployable **contract**, based on the frozen
   component scope in [ADR 0003](adr/0003-first-launch-component-scope.md).
 - Compatibility of those licenses with each other.
 - Consistency of this repository's own license declarations.
+
+**Explicitly NOT in scope, and not yet reviewed — see Finding 5:**
+
+- The root `package.json` npm tree (Solhint, `@openzeppelin/contracts`).
+- The `etherlinklend/` React/Vite tree and the **frontend bundle actually
+  distributed** from the informational website.
+
+An earlier version of this document claimed to cover "every dependency". It did
+not: it covered Solidity submodules only. A legal reviewer completing the
+Signoff below would therefore have signed off while a genuinely distributed
+artifact remained unaudited. Finding 5 records that gap as an open gate.
 
 Out of scope, and left to the legal reviewer:
 
@@ -175,6 +188,39 @@ projects but predates the license changes above and does not state which
 license each dependency carries. The `NOTICE` update in this change set
 addresses that.
 
+### Finding 5 — The npm dependency trees and the distributed frontend are unreviewed
+
+**Severity: blocks signoff. Scope gap, not a licence problem found.**
+
+This repository has three dependency populations. Only one has been reviewed:
+
+| Population | Reviewed here? | Distributed? |
+|---|---|---|
+| Solidity submodules (`lib/`) | **yes** | via deployed contracts |
+| Root `package.json` — Solhint, `@openzeppelin/contracts` | **no** | no, dev tooling |
+| `etherlinklend/package.json` — React/Vite tree | **no** | **yes — the live website bundle** |
+
+The third row is the material one. The README describes an informational
+landing page at a public URL, so the built frontend bundle is a distributed
+artifact containing third-party code, subject to whatever notice obligations
+those packages carry. None of it — direct or transitive — appears in the
+inventory above, and no attribution file is produced by the build.
+
+Note also that the root tree pins `@openzeppelin/contracts` **separately** from
+the submodule copy analysed in the deployable closure. Those are two different
+dependency records that can drift.
+
+Two acceptable resolutions; the reviewer picks one:
+
+1. **Extend this review** to both lockfile closures, and generate the notices
+   the frontend's dependencies require alongside the bundle.
+2. **Keep frontend and npm packaging behind a separate, explicitly unresolved
+   gate** with its own owner, and narrow this document's claims to on-chain
+   artifacts only — which the Scope section above now does.
+
+Until one is done, the Signoff block below **must not** be completed as though
+it covers everything the repository ships.
+
 ## Compatibility Conclusion
 
 For the frozen launch scope, the combined deployable work consists of
@@ -207,8 +253,21 @@ walks Solidity imports from each entry point and reports the SPDX header of
 every file reached:
 
 ```bash
-python3 tools/license/closure.py
+python3 tools/license/closure.py --allow-provisional
 ```
+
+The `--allow-provisional` flag is required today and is not cosmetic. ADR 0003
+defers the oracle implementation to Phase 3, so the oracle entry point in the
+script is the ADR's *reference* implementation, not the contract that will be
+deployed. Without the flag the script **fails**, deliberately: reporting `OK`
+against a placeholder would let a different Phase 3 oracle ship without its
+licence closure ever being examined. When the oracle is selected, update
+`ENTRY_POINTS`, clear the `provisional` flag, and **re-run this entire review** —
+an oracle change invalidates it exactly as a pin change does.
+
+The script also exits non-zero when an entry point is missing or an import
+cannot be resolved, so an uninitialised checkout cannot produce a passing
+result from examining zero files.
 
 ## Signoff
 
@@ -234,4 +293,9 @@ Approved for mainnet distribution: yes | no
   the `solmate/` remapping or add the CI guard. Date: TODO before Shadownet
   deployment.
 - Owner: TODO release owner. Action: re-run this review whenever a pin in
-  `docs/upstream.md` changes. Date: ongoing.
+  `docs/upstream.md` changes, **or whenever a deployable component is selected
+  or changed** — including the Phase 3 oracle. Date: ongoing.
+- Owner: TODO legal reviewer. Action: decide Finding 5 — either extend this
+  review to the npm/frontend closures, or place them behind a separate named
+  gate. The distributed website bundle is currently unreviewed. Date: TODO
+  before mainnet release.

@@ -27,7 +27,9 @@ If supply caps, borrow caps, or curation controls are implemented outside Morpho
 
 ## Recommended Initial Market Policy
 
-- Start with one or very few markets.
+- Start with exactly one endorsed market. A second market is out of first-launch
+  scope per [ADR 0003](../../docs/adr/0003-first-launch-component-scope.md) and
+  requires the Phase 10 next-market review.
 - Prefer stable loan assets.
 - Prefer highly liquid collateral.
 - Avoid exotic assets initially.

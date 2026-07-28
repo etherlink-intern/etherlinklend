@@ -82,12 +82,32 @@ Consequences:
    `ProposePeer` event. That is a meaningful mitigation against silently
    adding a hostile peer, and it gives monitoring a 48-hour window to react.
    It does **not** protect against compromise of an already-trusted peer.
-3. **Cross-chain transfers truncate to 6 decimals.** With
-   `decimalConversionRate = 1e12`, any amount not a multiple of 1e12 wei loses
-   its remainder on a cross-chain send. This does **not** affect local Morpho
-   supply/borrow/repay/withdraw, which use full 18-decimal transfers, but it
-   is directly relevant to the repository's dust and rounding focus and MUST
-   be covered in the Phase 5 test plan for any flow that crosses chains.
+3. **Cross-chain transfers round down to 6 decimals, and the remainder stays
+   with the sender.** With `decimalConversionRate = 1e12`, `_debitView` sets
+   `amountSentLD = _removeDust(_amountLD)`, i.e.
+   `(_amountLD / 1e12) * 1e12`. Only the rounded-down amount is debited, so the
+   remainder is **not burned or lost** — it remains in the sender's local
+   balance. The upstream comment states the intent directly: *"Remove the dust
+   so nothing is lost on the conversion between chains."*
+
+   This does **not** affect local Morpho supply/borrow/repay/withdraw, which
+   use full 18-decimal transfers.
+
+   It is still worth a Phase 5 test, and the invariant must be stated
+   precisely. For a requested cross-chain send of `requested`:
+
+   ```
+   amountSentLD = (requested / 1e12) * 1e12          // integer division
+   balance_before - balance_after == amountSentLD    // the debit
+   requested - amountSentLD < 1e12                   // the un-debited remainder
+   ```
+
+   The sender's balance **does** fall by `amountSentLD`, which is nearly the
+   whole transfer — what stays behind is only the sub-`1e12` remainder. Two
+   wrong phrasings both produce tests that fail against correct behaviour:
+   *"value is destroyed"* (it is not), and *"the balance is preserved to within
+   one dust unit"* (it is not — that would only hold for sends smaller than one
+   dust unit). Assert the two lines above.
 
 ### Backing observed
 
@@ -144,19 +164,23 @@ Reference prices at review time, three independent sources within 0.2%:
 
 Executable WXTZ → USDC, priced against the ~0.2069 small-size executable rate:
 
-| WXTZ in | ≈ USD | USDC out | Effective px | Slippage |
-|---:|---:|---:|---:|---:|
-| 1,000 | ~207 | 206.94 | 0.206940 | baseline |
-| 5,000 | ~1,034 | 1,034.39 | 0.206878 | −0.03% |
-| 10,000 | ~2,068 | 2,068.29 | 0.206829 | −0.05% |
-| 15,000 | ~3,101 | 3,100.55 | 0.206703 | −0.11% |
-| 20,000 | ~4,129 | 4,129.48 | 0.206474 | −0.23% |
-| 25,000 | ~5,147 | 5,146.88 | 0.205875 | −0.51% |
-| 30,000 | ~6,068 | 6,068.18 | 0.202273 | **−2.25%** |
-| 40,000 | ~6,534 | 6,533.80 | 0.163345 | **−21.06%** |
-| 50,000 | ~6,310 | 6,310.38 | 0.126208 | **−39.01%** |
-| 100,000 | ~5,823 | 5,823.42 | 0.058234 | **−71.86%** |
-| 250,000 | ~1,710 | 1,710.23 | 0.006841 | **−96.69%** |
+The "input value" column below values the WXTZ **input** at the ~0.2069
+reference rate. It is deliberately not the same as "USDC out" — the gap between
+the two columns *is* the loss.
+
+| WXTZ in | Input value ≈ USD | USDC out | Effective px | Slippage | Value destroyed |
+|---:|---:|---:|---:|---:|---:|
+| 1,000 | 207 | 206.94 | 0.206940 | baseline | — |
+| 5,000 | 1,035 | 1,034.39 | 0.206878 | −0.03% | ~0 |
+| 10,000 | 2,069 | 2,068.29 | 0.206829 | −0.05% | ~1 |
+| 15,000 | 3,104 | 3,100.55 | 0.206703 | −0.11% | ~3 |
+| 20,000 | 4,138 | 4,129.48 | 0.206474 | −0.23% | ~9 |
+| 25,000 | 5,173 | 5,146.88 | 0.205875 | −0.51% | ~26 |
+| 30,000 | 6,207 | 6,068.18 | 0.202273 | **−2.25%** | **~139** |
+| 40,000 | 8,276 | 6,533.80 | 0.163345 | **−21.06%** | **~1,742** |
+| 50,000 | 10,345 | 6,310.38 | 0.126208 | **−39.01%** | **~4,035** |
+| 100,000 | 20,690 | 5,823.42 | 0.058234 | **−71.86%** | **~14,867** |
+| 250,000 | 51,725 | 1,710.23 | 0.006841 | **−96.69%** | **~50,015** |
 
 Reverse direction (USDC → WXTZ) is flat at ~0.2073 through at least
 10,000 USDC, so the thin side is the one that matters for liquidation:
@@ -175,14 +199,45 @@ Compare against the liquidation incentive. Morpho Blue computes LIF as
 `MAX_LIF = 1.15`. At an illustrative LLTV of 0.86 that is ≈ **4.4%**.
 
 A liquidator only acts if `liquidation incentive > slippage + gas + margin`.
-With a ~4.4% incentive:
+With a ~4.4% incentive, per **single** liquidation call:
 
-- A liquidation of ≤ 25,000 WXTZ (~$5,150) is comfortably profitable.
-- A liquidation of ~30,000 WXTZ (~$6,100) is marginal at 2.25% slippage
+- A liquidation of ≤ 25,000 WXTZ (~$5,170) is comfortably profitable.
+- A liquidation of ~30,000 WXTZ (~$6,210) is marginal at 2.25% slippage
   before gas and liquidator margin.
-- A liquidation of ≥ 40,000 WXTZ (~$8,300) is **deeply unprofitable**. No
-  rational liquidator acts, the position is not cleared, and the market
-  accrues bad debt.
+- A single liquidation of ≥ 40,000 WXTZ (~$8,280) is **deeply unprofitable**
+  at 21% slippage.
+
+### Partial liquidation changes the shape of this, but not the conclusion
+
+Morpho's `liquidate()` takes a caller-chosen `seizedAssets` or `repaidShares`,
+so a liquidator facing a 40,000 WXTZ position is **not** forced to take it in
+one trade. They can seize a profitable ~25,000 WXTZ slice and leave the rest.
+The full-size quote above therefore does **not** by itself prove that no
+liquidator acts, or that bad debt follows immediately — an earlier draft of
+this file overstated that, and the claim is corrected here.
+
+What the curve does establish:
+
+- Each slice consumes depth, so successive slices in the same block face a
+  worse curve. The table is a snapshot of one path, not a repeatable quote.
+- Clearing a large position depends on **pool replenishment between slices**,
+  i.e. on arbitrageurs restoring the pool from elsewhere. That is an external
+  dependency, it takes time, and it is least reliable during the volatility
+  that caused the liquidation.
+- A partially liquidated position stays unhealthy in the interim, so the
+  protocol carries the residual risk for however long replenishment takes.
+
+So the honest statement is: positions materially above the ~25,000–30,000 WXTZ
+band cannot be cleared **in one transaction** at a profit, and clearing them at
+all depends on repeated slices plus timely replenishment. Sizing caps to the
+single-slice band is the conservative choice, and it is what this file
+recommends — but the supporting mechanism is sequential-liquidation risk, not
+an absolute "nobody liquidates".
+
+**Not yet measured, and required before approval:** a sequential-slice
+simulation (repeated 25,000 WXTZ quotes against a decrementing pool) and an
+estimate of replenishment time. Until then the caps below are conservative by
+assumption rather than by measurement.
 
 This measurement is taken in calm conditions. Liquidations happen in stressed
 conditions, when depth is typically worse and correlated with the price move
@@ -227,14 +282,23 @@ Blocking items:
    `ProposePeer`/`PeerSet` within the 48-hour timelock window.
 4. **Provenance.** An official issuer or Etherlink reference for the address.
 
-Suggested parameters, provisional and subject to the above:
+Suggested parameters, provisional and subject to the above.
+
+**These are not enforceable controls.** Morpho Blue core has no supply or
+borrow cap, and ADR 0003 excludes the vault layer that would provide one, so
+nothing prevents a third party supplying or borrowing past any figure here via
+direct core calls. Read every "cap" below as an **operational target and
+monitoring threshold**. See Finding 0 in the
+[market risk memo](wxtz-usdc-market-risk-memo.md) for the decision this forces.
 
 - Suggested LLTV: defer to Phase 2 risk memo. Note that a *higher* LLTV
   lowers the liquidation incentive and therefore worsens the Finding 3
   problem; the usual "conservative = low LLTV" instinct is correct here for a
   second reason beyond price volatility.
-- Suggested supply cap: **≤ 25,000 WXTZ** (~$5,200) on current depth.
-- Suggested borrow cap: sized so the largest single liquidation stays inside
+- Target collateral exposure: **≤ 25,000 WXTZ** (~$5,170) on current depth.
+  This is total `supplyCollateral` exposure, not Morpho's `supply()` of the
+  loan asset.
+- Target borrow exposure: sized so the largest single liquidation stays inside
   the <1% slippage band.
 - Required mitigations: duplicate-market monitoring per ADR 0003; DEX route
   monitoring already required by `docs/monitoring.md`; alerting on
@@ -242,9 +306,21 @@ Suggested parameters, provisional and subject to the above:
 
 ## Verification
 
+**Pin reads to the recorded block.** Every `eth_call` below uses the review
+block `0x2f33a91` (49,494,673) rather than `latest`. Supply, balance, and
+adapter state are mutable, so `latest` reproduces *today's* values and cannot
+audit the evidence recorded here. Substitute `"latest"` deliberately if you
+want a current-state check, and treat that as a separate exercise.
+
+The Kyber depth figures are an unversioned live quote and **cannot** be pinned
+this way. They are not reproducible after the fact; re-measuring will produce
+different numbers. Treat the curve as a timestamped observation, and see the
+blocking TODO on re-measurement.
+
 ```bash
 RPC=https://node.mainnet.etherlink.com
 W=0xc9B53AB2679f573e480d01e0f49e2B5CFB7a3EAb
+BLK=0x2f33a91   # 49,494,673 - the review block
 
 # chain identity
 curl -s -X POST $RPC -H 'Content-Type: application/json' \
@@ -252,15 +328,15 @@ curl -s -X POST $RPC -H 'Content-Type: application/json' \
 
 # decimals() = 0x12 (18), symbol(), name(), totalSupply()
 curl -s -X POST $RPC -H 'Content-Type: application/json' \
-  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"$W\",\"data\":\"0x313ce567\"},\"latest\"]}"
+  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"$W\",\"data\":\"0x313ce567\"},\"$BLK\"]}"
 
 # native XTZ backing held by the contract
 curl -s -X POST $RPC -H 'Content-Type: application/json' \
-  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_getBalance\",\"params\":[\"$W\",\"latest\"]}"
+  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_getBalance\",\"params\":[\"$W\",\"$BLK\"]}"
 
 # EIP-1967 implementation slot -> expect 0x0 (not a proxy)
 curl -s -X POST $RPC -H 'Content-Type: application/json' \
-  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_getStorageAt\",\"params\":[\"$W\",\"0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc\",\"latest\"]}"
+  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_getStorageAt\",\"params\":[\"$W\",\"0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc\",\"$BLK\"]}"
 
 # verified ABI and proxy status
 curl -s "https://explorer.etherlink.com/api/v2/smart-contracts/$W" | jq '{name,is_verified,proxy_type,implementations}'

@@ -37,8 +37,12 @@ and security review:
   component for this launch).
 - `WstEthStEthExchangeRateChainlinkAdapter` (not applicable to a WXTZ/USDC
   market).
-- `MorphoChainlinkOracleV2Factory`, unless Phase 3 explicitly selects the
-  factory deployment path over a direct oracle deployment.
+- `MorphoChainlinkOracleV2Factory`. The factory is **out of scope**, with no
+  exception. If Phase 3 wants the factory deployment path it must amend this
+  ADR to list both the factory and the oracle it creates, and propagate the
+  expanded list to `docs/architecture.md` — a factory path deploys **two**
+  contracts, which contradicts the "exactly one oracle contract" freeze above.
+  That is an amendment, not a permitted variation.
 - Anything under `lib/morpho-blue/src/mocks/`.
 - Anything under `src/testnet/` (`TestOnlyFixedPriceOracle`,
   `TestOnlyMockERC20`). These are Shadownet-only and MUST NOT reach mainnet.
@@ -121,10 +125,21 @@ Shadownet rehearsal MUST exercise this path rather than assume it is inert.
 ### 6. Signature domain is bound to the deploy-time chain ID
 
 The `DOMAIN_SEPARATOR` is computed in the constructor from `block.chainid` and
-stored immutably. `setAuthorizationWithSig` therefore depends on the chain ID
-captured at deployment. If Etherlink's chain ID ever changes, previously
-signed authorizations stop validating. This is a note for the Etherlink
-readiness gate, not a defect.
+stored immutably. `setAuthorizationWithSig` therefore always hashes against the
+**deploy-time** chain ID, not the current one.
+
+If Etherlink's chain ID ever changes, the consequences run in the opposite
+direction to the intuitive one:
+
+- Signatures produced **before** the change **keep validating**, because the
+  contract still hashes against the original domain. They do not expire.
+- Signatures produced **after** the change by clients using the **new** chain
+  ID **fail**, because the client and the contract now disagree on the domain.
+
+The risk to plan for is therefore **cross-fork signature replay** — an
+authorization signed on one side of a chain-ID split remains valid against this
+deployment — not signature expiry. This is a note for the Etherlink readiness
+gate, not a defect.
 
 ## Consequences
 
